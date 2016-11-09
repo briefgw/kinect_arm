@@ -21,8 +21,10 @@ from sys import argv
 # global variables
 moveCount = -1 		# tracker number for movements
 location = 0  		# current location
-acceleration = 10 	# magnitude of linear acceleration
-startSpeed = 10		# initial velocity to begin acceleration
+
+# adjustable global variables
+acceleration = 100 	# magnitude of linear acceleration 			#10 is a good slow-setting
+startSpeed = 10		# initial velocity to begin acceleration	#10 is a good slow-setting
 
 # GPIO pin assignments
 pulse_pin = 23
@@ -187,7 +189,7 @@ def distAccel(speed):
 
 
 
-# Step Clockwise with Acceleration and Deceleration
+# Step CLOCKWISE with Acceleration and Deceleration
 def stepClockwise_withAccel(steps, speed):
 	if(steps < 0):
 		print "ERROR: steps argument cannot be negative!"
@@ -263,7 +265,7 @@ def stepClockwise_withAccel(steps, speed):
 			currSpeed = currSpeed #start speed to decelerate
 		else:
 			currSpeed = (currStep / totalTime) - (acceleration * totalTime * 0.5)
-		print "%d: %d" %(currStep,currSpeed)		
+		#print "%d: %d" %(currStep,currSpeed)		
 		step_clockwise(1, currSpeed)
 		totalTime = totalTime + (1.0/currSpeed)
 	print "   ---Finished decelerating!"
@@ -271,9 +273,16 @@ def stepClockwise_withAccel(steps, speed):
 	print "Run Time: %f seconds\n" % (time.time() - t0)
 #end method
 
+
+
+
+
+
+
+
 #=====================================================================================
 #=====================================================================================
-# Step CounterClockwise with Acceleration and Deceleration
+# Step COUNTERCLOCKWISE with Acceleration and Deceleration
 def stepCounterClockwise_withAccel(steps, speed):
 	if(steps < 0):
 		print "ERROR: steps argument cannot be negative!"
