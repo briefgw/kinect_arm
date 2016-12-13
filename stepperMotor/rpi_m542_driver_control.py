@@ -21,7 +21,7 @@ from sys import argv
 # global variables
 moveCount = -1 		# tracker number for movements
 location = 0  		# current location
-acceleration = 10 	# magnitude of linear acceleration
+acceleration = 100 	# magnitude of linear acceleration
 startSpeed = 10		# initial velocity to begin acceleration
 
 # GPIO pin assignments
