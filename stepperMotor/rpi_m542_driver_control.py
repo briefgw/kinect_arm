@@ -26,6 +26,7 @@ location = 0  		# current location
 acceleration = 100 	# magnitude of linear acceleration 			#10 is a good slow-setting
 startSpeed = 10		# initial velocity to begin acceleration	#10 is a good slow-setting
 
+
 # GPIO pin assignments
 pulse_pin = 23
 dir_pin = 24
