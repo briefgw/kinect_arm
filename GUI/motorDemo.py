@@ -4,7 +4,6 @@
 
 from motorGUI import *
 
-
 # Build and run the motorGUI
 root = Tk()
 gui = motorGUI(root) # make an instance of motorGUI
