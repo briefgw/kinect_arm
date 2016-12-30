@@ -7,7 +7,7 @@
 
 from motorGUI import *
 
-default_IP = "192.168.0.15" #string
+default_IP = "192.168.2.200" #string
 default_PORT = 8188 #int
 
 # Build and run the motorGUI
