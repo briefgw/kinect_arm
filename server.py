@@ -2,7 +2,7 @@
 import os
 import sys
 import socket
-IPADDR="192.168.0.10"
+IPADDR="192.168.0.15"
 PORT=8188
 
 class rpiserver:
