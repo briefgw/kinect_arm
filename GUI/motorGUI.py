@@ -4,16 +4,23 @@
 
 # motorDemo.py builds and runs this GUI.
 
+# Note: all commands to socket must have \n character at the end.
+
 from Tkinter import *
 import tkFont
 from PIL import Image, ImageTk # sudo pip install Pillow (might need to also install pip)
 import time
+import socket
+import sys
 
 
 # Class motorGUI builds the GUI and has methods for button actions.
 class motorGUI:
 
-	def __init__(self, master): # constructor
+	def doNothing(self):
+		return
+
+	def __init__(self, master, default_IP, default_PORT): # constructor
 		
 		self.master = master # this is important.
 
@@ -21,17 +28,25 @@ class motorGUI:
 		self.addGUIcomponents(self.master)
 
 		# Set default ip address and port
-		self.ip_Entry.insert(END, "127.0.0.1")
-		self.port_Entry.insert(END, "80")
+		self.ip_Entry.insert(END, default_IP)
+		self.port_Entry.insert(END, default_PORT)
 
+		# Create client Socket
+		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
+
+		
 		# Set initial mode 
 		self.setMode("Connect to RPi")
 		# self.setMode("Motor interaction")
+
+		
 
 		# Begin Idle Loop
 		# self.idleLoop() # updates every 100ms when program is idle.
 
 	def setMode(self, mode):
+		print "set mode = ",mode
+		self.mode = mode
 		# Modes:
 		# - Connect to RPi
 		# - Motor interaction
@@ -40,10 +55,21 @@ class motorGUI:
 			for c in self.connectionComponentList:
 				self.enable(c)
 			# Disable components associated with motor interaction
+			
+			# self.value_Entry.selection_range(0, END)
+			# self.value_Entry.selection_clear()
+			self.value_Entry.delete(0, END)
+
 			for c in self.motorComponentList:
 				self.disable(c)
+			self.infoBox_Label.config(text = "")
 			self.infoBox_Message.config(text = "\n\n\n\n\n")
+			self.status_Label.config(text = "")
 			self.status_Message.config(text = "")
+			self.unit_Label.config(text = "")
+			
+			self.selectedMotor.set(0)
+			self.master.update_idletasks()
 
 		elif mode == "Motor interaction":
 			# Enable components associated with motor interaction
@@ -54,68 +80,123 @@ class motorGUI:
 			# Disable components associated with Connecting to RPi
 			for c in self.connectionComponentList:
 				self.disable(c)
-			# Begin idleLoop
-			self.idleLoop()
-
-
-	def idleLoop(self):
-		# This method runs when there are no other tasks running.
-		# It does several things:
-		# - Checks value_Entry for a valid entry
-		# - Enables/disables the moveMotor_Button if entry is selected motor's range
-		# - Sets the status message box on above conditions
-
-		# Get selected motor button and convert entry field value to int
-		button = self.selectedMotor.get()
-		value = self.convertEntryFieldToInt(self.value_Entry.get()) # turn entry field into int and catch error
-		[b, msg] = self.valueInRange(button, value) # b = T/F, msg = Error message
-
-		# in case these are disabled, enable them
-		self.enable(self.value_Entry)
-		for m in self.motorButtonList: # enable the motor selection buttons
-			self.enable(m)
-
-		# Check value for non-negative integer
-		if value == None: # when entryField is empty
-			self.disable(self.moveMotor_Button)
-			if self.moveCompleteMsg == False:
-				self.clearStatusMsg()
-		elif value < 0: # when negative number or non-digit character
-			self.disable(self.moveMotor_Button)
-			self.moveCompleteMsg = False
-			self.setStatusMsg("Value must be a non-negative integer.", statusType = "Error:", color = "red")
+			self.master.update_idletasks()
 		
-		# For each motor, check if value is in range
-		elif b == "T":
-			if self.moveCompleteMsg == False:
-				self.clearStatusMsg()
-			self.enable(self.moveMotor_Button)
-		elif b == "F":
-			self.disable(self.moveMotor_Button)
-			self.setStatusMsg(msg, statusType = "Error:", color = "red")
-			self.moveCompleteMsg = False
-
-		# Refresh every 100ms
-		self.master.after(100, self.idleLoop) 
+		# Begin idleLoop
+		self.idleLoop()
 
 	def connectRPi(self):
-		ip = self.ip_Entry.get()
-		port = self.port_Entry.get()
+		ip_address = self.ip_Entry.get()
+		port = int(self.port_Entry.get())
 
 		self.disable(self.connect_Button)
+		self.disable(self.ip_Entry)
+		self.disable(self.port_Entry)
+
+		# Create new client Socket
+		# self.clientSocket = None
+		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 
 		self.connectionStatus_Label.config(fg = "black", text = "Establishing connection...")
 		self.master.update_idletasks()
+
+		print "connecting to",ip_address, port
+		self.clientSocket.connect((ip_address, port)) # uncomment when ready
+		print "connected"
+		self.connectionStatus_Label.config(fg = "green3", text = "Connected")
+		self.setMode("Motor interaction")
+
+		# # Try to connect to socket with IP_ADDRESS and PORT
+		# try:
+		# 	# self.clientSocket.settimeout(10)
+		# 	print "connecting to"
+		# 	self.clientSocket.connect((ip_address, port)) # uncomment when ready
+		# 	# self.clientSocket.settimeout(None)
+		# 	print "Connected"
+		# 	self.connectionStatus_Label.config(fg = "green3", text = "Connected")
+		# 	self.setMode("Motor interaction")
+		# except:
+		# 	print "Unable to connect"
+		# 	self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
+		# 	self.setMode("Connect to RPi")
+
+	def disconnectRPi(self):
+		print "Disconnected"
+		self.clientSocket.shutdown(socket.SHUT_RDWR)
+		print "shutdown done"
+		self.clientSocket.close()
+		print "close done"
+		self.clientSocket = None
+		self.connectionStatus_Label.config(fg = "red", text = "Disconnected")
+		self.master.update_idletasks()
+		# self.master.after(1000)
+		self.setMode("Connect to RPi")
 		
-		self.master.after(3000)
-		response = "hello"
 
-		if response == "hello":
-			self.connectionStatus_Label.config(fg = "green3", text = "Connected")
-			self.setMode("Motor interaction")
-		else:
-			self.connectionStatus_Label.config(fg = "red", text = "Not connected")
+	def isConnected(self):
+		# print "isConnected()"
+		# send ping, get response
+		try:
+			self.clientSocket.send("Are you alive?\n")
+			response = self.clientSocket.recv(1000) #receive up to 1000 characters (bytes)
+			# print "isConnected() try successful"
+			return True
+		except:
+			return False
 
+	def idleLoop(self):
+		# This method runs when there are no other tasks running.
+
+		if self.mode == "Connect to RPi":
+			# Refresh every 100ms
+			self.doNothing()
+
+		elif self.mode == "Motor interaction":
+			# This loop does several things:
+			# - Check if connection is still established
+			# - Checks value_Entry for a valid entry
+			# - Enables/disables the moveMotor_Button if entry is selected motor's range
+			# - Sets the status message box on above conditions
+
+			# Check if connection is broken
+			if self.isConnected() != True:
+				print "Connection failed"
+				self.connectionStatus_Label.config(fg = "red", text = "Connection Failed")
+				self.setMode("Connect to RPi")
+
+			# Get selected motor button and convert entry field value to int
+			button = self.selectedMotor.get()
+			value = self.convertEntryFieldToInt(self.value_Entry.get()) # turn entry field into int and catch error
+			[b, msg] = self.valueInRange(button, value) # b = T/F, msg = Error message
+
+			# in case these are disabled, enable them
+			self.enable(self.value_Entry)
+			self.enable(self.disconnect_Button)
+			for m in self.motorButtonList: # enable the motor selection buttons
+				self.enable(m)
+
+			# Check value for non-negative integer
+			if value == None: # when entryField is empty
+				self.disable(self.moveMotor_Button)
+				if self.moveCompleteMsg == False:
+					self.clearStatusMsg()
+			elif value < 0: # when negative number or non-digit character
+				self.disable(self.moveMotor_Button)
+				self.moveCompleteMsg = False
+				self.setStatusMsg("Value must be a non-negative integer.", statusType = "Error:", color = "red")
+			
+			# For each motor, check if value is in range
+			elif b == "T":
+				if self.moveCompleteMsg == False:
+					self.clearStatusMsg()
+				self.enable(self.moveMotor_Button)
+			elif b == "F":
+				self.disable(self.moveMotor_Button)
+				self.setStatusMsg(msg, statusType = "Error:", color = "red")
+				self.moveCompleteMsg = False
+
+		# Refresh every 100ms
+		self.master.after(100, self.idleLoop) 
 
 	def valueInRange(self, button, value):
 		# value is a non-negative integer
@@ -168,8 +249,11 @@ class motorGUI:
 
 	def moveMotor(self):
 		print "Move motor begin"
+
+		# disable moveMotor_Button, value_Entry, motorButtonList
 		self.disable(self.moveMotor_Button)
 		self.disable(self.value_Entry)
+		self.disable(self.disconnect_Button)
 		for m in self.motorButtonList: # disable the motor selection buttons
 			self.disable(m)
 
@@ -177,19 +261,31 @@ class motorGUI:
 		# **********///********~~~~~~~~~~********\\\**********
 		# ********///**********~~~~~~~~~~**********\\\********
 		t = time.time()
-		value = self.convertEntryFieldToInt(self.value_Entry.get())
+		
+		# create command to send to RPi
+		value = str(self.value_Entry.get()) # NOTE: typing -0 works. might need to fix that
+		text = self.infoBox_Label['text']
+		command = text + value + "\n"
+
+
+		# send command to RPi
 		self.setStatusMsg("Sending command to RPi...")
-		self.master.after(500)
-		# build this
-		self.setStatusMsg("Wait one second for RPi response. (If no response, quit with error message).")
-		self.master.after(1000)
-		#build this
+		print "sending command:", command
+		self.clientSocket.send(command)
+		
+		# get response from RPi
+		self.setStatusMsg("Wait for RPi response. (If no response, quit with error message).")
+		response = self.clientSocket.recv(1000)
+		print "RPi response:", response
+
+		# wait for RPi response that motor movement is complete
 		self.setStatusMsg("Motor moving... Waiting for RPi signal that movement is completed.")
-		# Call methods to move motors here.
-		self.master.after(1000)
+		# respone = self.clientSocket.recv(1000)
+		self.master.after(3000)
+
 		# This simluates a motor moving.
 		self.setStatusMsg("RPi signal received.")
-		self.master.after(500)
+
 		elapsed_time = str(int(time.time() - t))
 		self.setStatusMsg("Motor movement complete. Time elapsed: " + elapsed_time + " seconds.")
 		# ********\\\**********~~~~~~~~~~**********///********
@@ -248,20 +344,25 @@ class motorGUI:
 		self.port_Label = Label(master, text = "Port:")
 		self.port_Label.grid(row = 4, column = 3, columnspan = 1, sticky = "e")
 
-		self.ip_Entry = Entry(master, width = 16)
-		self.ip_Entry.grid(row = 3, column = 4, columnspan = 12)
+		self.ip_Entry = Entry(master, width = 12)
+		self.ip_Entry.grid(row = 3, column = 4, columnspan = 10, sticky = "w")
 
-		self.port_Entry = Entry(master, width = 16)
-		self.port_Entry.grid(row = 4, column = 4, columnspan = 12)
+		self.port_Entry = Entry(master, width = 12) # casted to int() in connectRPi() method 
+		self.port_Entry.grid(row = 4, column = 4, columnspan = 10, sticky = "w")
 
 		# -------- Connection Status Label
 		self.connectionStatus_Label = Label(master, text = "Not connected", fg = "red", font = "Helvetica 13",)
-		self.connectionStatus_Label.grid(row = 3, column = 18, columnspan = 18, sticky = "w", ipadx = 11)
+		self.connectionStatus_Label.grid(row = 3, column = 14, columnspan = 18, sticky = "w")
 
 		# -------- Connect Button
 		self.connect_Button = Button(master, text = "Connect!", command = self.connectRPi)
 		self.connect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 14, weight = 'bold')
-		self.connect_Button.grid(row = 4, column = 18, columnspan = 9, sticky = "w") # place 'Move motor!' button
+		self.connect_Button.grid(row = 4, column = 14, columnspan = 9, sticky = "w") # place 'Move motor!' button
+
+		# -------- Disconnect Button
+		self.disconnect_Button = Button(master, text = "Disconnect", command = self.disconnectRPi)
+		self.disconnect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 14, weight = 'bold')
+		self.disconnect_Button.grid(row = 4, column = 23, columnspan = 9, sticky = "w") # place 'Move motor!' button
 
 		# -------- Select Motor Label
 		self.selectMotor_Label = Label(master, text = "Select a motor:", font = "Helvetica 15 bold underline", pady = 8)
@@ -324,7 +425,7 @@ class motorGUI:
 		# Lists of components used to iteratively enable/disable
 		# Note: disable not available for Tkinter Message() widget
 		self.connectionComponentList = [self.connectRPi_Label, self.ip_Label, self.ip_Entry, self.port_Label, self.port_Entry, self.connect_Button]
-		self.motorComponentList = [self.selectMotor_Label, self.mb1, self.mb2, self.mb3, self.mb4, self.mb5, self.value_Label, self.value_Entry, self.unit_Label, self.moveMotor_Button, self.infoBox_Label, self.status_Label]
+		self.motorComponentList = [self.disconnect_Button, self.selectMotor_Label, self.mb1, self.mb2, self.mb3, self.mb4, self.mb5, self.value_Label, self.value_Entry, self.unit_Label, self.moveMotor_Button, self.infoBox_Label, self.status_Label]
 
 
 
