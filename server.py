@@ -94,7 +94,7 @@ if __name__ == "__main__":
 	print >> sys.stderr, "Accepting connection on %s: %d"%(IP_ADDRESS, PORT)
 
 	# call constructor for rpiserver class
-	sv = rpiserver(IPADDR,PORT,True)
+	sv = rpiserver(IP_ADDRESS, PORT, True)
 	# loop accepting new connections
 	while True:
 		sv.accept_connection()
