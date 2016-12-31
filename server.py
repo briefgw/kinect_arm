@@ -23,23 +23,23 @@ class rpiserver:
 		self.addr = ipaddr
 
 		if self.debug:
-			print >>sys.stderr, "Binding to ",self.addr, "port", self.port
+			print >> sys.stderr, "Binding to ",self.addr, "port", self.port
 			self.serversocket.bind((self.addr,self.port))
 
 		if self.debug:
-			print >>sys.stderr, "Listening"
+			print >> sys.stderr, "Listening"
 		self.serversocket.listen(10)
 
 
 	def accept_connection(self):
 		if self.debug:
-			print >>sys.stderr, "Waiting for connection", self.addr, "port", self.port
+			print >> sys.stderr, "Waiting for connection", self.addr, "port", self.port
 		# this will block until a client connects 
 		(self.clientsocket, self.client) = self.serversocket.accept()
 		# a client has connected to the socket
 		# self.clientsocket is a new socket object for reading/writing to client
 		if self.debug:
-			print >>sys.stderr, "Connection accepted from",self.clientsocket.getpeername()
+			print >> sys.stderr, "Connection accepted from",self.clientsocket.getpeername()
 
 		# get the file descriptor from the client socket object
 		self.fn = self.clientsocket.fileno()
@@ -52,12 +52,18 @@ class rpiserver:
 
 	def get_command(self):
 		if self.debug:
-			print >> sys.stderr,"Reading line from socket"
+			print >> sys.stderr,"\nReading line from socket"
 		return self.fd.readline()
+
+	def ImAlive_response(self):
+		# if self.debug:
+		# 	print >> sys.stderr,"I'm alive!"
+		self.fd.write("I'm alive!")
+		self.fd.flush()
 
 	def send_response(self, msg):
 		if self.debug:
-			print >> sys.stderr,"Sending response"
+			print >> sys.stderr,"--Sending response: (%s)" %msg
 		self.fd.write(msg)
 		self.fd.flush()
 
@@ -114,29 +120,29 @@ if __name__ == "__main__":
 
 			# Interpret commands received from client
 			if cmd == "Are you alive?":
-				sv.send_response("I'm alive!")
-				# Don't print to console - it will spam.
-			else:
-				# if len(cmd == 0):
-				# 	sv.send_response("--Received empty command");
+				sv.ImAlive_response()
+				continue
+			
+			# if len(cmd == 0):
+			# 	sv.send_response("--Received empty command");
 
-				print >>sys.stderr, "--Command received = (%s)"%cmd
+			print >> sys.stderr, "--Command received: (%s)"%cmd
 				
-				cmdTokens = cmd.split(':', 1)
-				motor = cmdTokens[0]
-				value = int(cmdTokens[1])
+			cmdTokens = cmd.split(':', 1)
+			motor = cmdTokens[0]
+			value = int(cmdTokens[1])
 
-				if motor == "Servo Gearbox":
-					sv.servoGearbox(value)
-					# sv.send_response("--Response sent = (%s)"%cmd)
-				elif motor == "Linear Actuator - Middle":
-					sv.middleActuator(value)
-				elif motor == "Linear Actuator - Bottom":
-					sv.bottomActuator(value)
-				elif motor == "Stepper Motor (clockwise)":
-					sv.stepperClockwise(value)
-				elif motor == "Stepper Motor (counterclockwise)":
-					sv.stepperCounterclockwise(value)
+			if motor == "Servo Gearbox":
+				sv.servoGearbox(value)
+				# sv.send_response("--Response sent = (%s)"%cmd)
+			elif motor == "Linear Actuator - Middle":
+				sv.middleActuator(value)
+			elif motor == "Linear Actuator - Bottom":
+				sv.bottomActuator(value)
+			elif motor == "Stepper Motor (clockwise)":
+				sv.stepperClockwise(value)
+			elif motor == "Stepper Motor (counterclockwise)":
+				sv.stepperCounterclockwise(value)
 
 
 
