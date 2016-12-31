@@ -116,27 +116,27 @@ if __name__ == "__main__":
 			if cmd == "Are you alive?":
 				sv.send_response("I'm alive!")
 				# Don't print to console - it will spam.
+			else:
+				# if len(cmd == 0):
+				# 	sv.send_response("--Received empty command");
 
-			# if len(cmd == 0):
-			# 	sv.send_response("--Received empty command");
+				print >>sys.stderr, "--Command received = (%s)"%cmd
+				
+				cmdTokens = cmd.split(':', 1)
+				motor = cmdTokens[0]
+				value = int(cmdTokens[1])
 
-			print >>sys.stderr, "--Command received = (%s)"%cmd
-			
-			cmdTokens = cmd.split(':', 1)
-			motor = cmdTokens[0]
-			value = int(cmdTokens[1])
-
-			if motor == "Servo Gearbox":
-				sv.servoGearbox(value)
-				# sv.send_response("--Response sent = (%s)"%cmd)
-			elif motor == "Linear Actuator - Middle":
-				sv.middleActuator(value)
-			elif motor == "Linear Actuator - Bottom":
-				sv.bottomActuator(value)
-			elif motor == "Stepper Motor (clockwise)":
-				sv.stepperClockwise(value)
-			elif motor == "Stepper Motor (counterclockwise)":
-				sv.stepperCounterclockwise(value)
+				if motor == "Servo Gearbox":
+					sv.servoGearbox(value)
+					# sv.send_response("--Response sent = (%s)"%cmd)
+				elif motor == "Linear Actuator - Middle":
+					sv.middleActuator(value)
+				elif motor == "Linear Actuator - Bottom":
+					sv.bottomActuator(value)
+				elif motor == "Stepper Motor (clockwise)":
+					sv.stepperClockwise(value)
+				elif motor == "Stepper Motor (counterclockwise)":
+					sv.stepperCounterclockwise(value)
 
 
 
