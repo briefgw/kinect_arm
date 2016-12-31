@@ -126,16 +126,16 @@ if __name__ == "__main__":
 			motor = cmdTokens[0]
 			value = int(cmdTokens[1])
 
-			if motor = "Servo Gearbox":
+			if motor == "Servo Gearbox":
 				sv.servoGearbox(value)
 				# sv.send_response("--Response sent = (%s)"%cmd)
-			elif motor = "Linear Actuator - Middle"
+			elif motor == "Linear Actuator - Middle":
 				sv.middleActuator(value)
-			elif motor = "Linear Actuator - Bottom"
+			elif motor == "Linear Actuator - Bottom":
 				sv.bottomActuator(value)
-			elif motor = "Stepper Motor (clockwise)"
+			elif motor == "Stepper Motor (clockwise)":
 				sv.stepperClockwise(value)
-			elif motor = "Stepper Motor (counterclockwise)"
+			elif motor == "Stepper Motor (counterclockwise)":
 				sv.stepperCounterclockwise(value)
 
 
