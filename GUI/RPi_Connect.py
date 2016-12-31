@@ -6,7 +6,7 @@ import time
 import socket
 import sys
 
-IP_ADDRESS = "192.168.0.15"
+IP_ADDRESS = "192.168.2.200"
 PORT = 8188
 
 # create client socket

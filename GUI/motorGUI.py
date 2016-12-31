@@ -4,7 +4,11 @@
 
 # motorDemo.py builds and runs this GUI.
 
-# Note: all commands to socket must have \n character at the end.
+# Note: all commands sent to the socket must have \n character at the end.
+
+# Bugs that I do not know how to fix.
+# 1. Connect/disconnect multiple times stalls GUI until mouse focus on terminal.
+# 2. self.checkConnectionCount in isConnected() does not count in constant time. 
 
 from Tkinter import *
 import tkFont
@@ -34,32 +38,25 @@ class motorGUI:
 		# Create client Socket
 		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 
+		self.checkConnectionCount = 0
+		self.t = 0 #get rid of this
 		
 		# Set initial mode 
 		self.setMode("Connect to RPi")
 		# self.setMode("Motor interaction")
 
-		
-
-		# Begin Idle Loop
-		# self.idleLoop() # updates every 100ms when program is idle.
 
 	def setMode(self, mode):
 		print "set mode = ",mode
 		self.mode = mode
-		# Modes:
-		# - Connect to RPi
-		# - Motor interaction
+
+		# Two modes
 		if mode == "Connect to RPi":
 			# Enable components associated with Connecting to RPi
 			for c in self.connectionComponentList:
 				self.enable(c)
 			# Disable components associated with motor interaction
-			
-			# self.value_Entry.selection_range(0, END)
-			# self.value_Entry.selection_clear()
 			self.value_Entry.delete(0, END)
-
 			for c in self.motorComponentList:
 				self.disable(c)
 			self.infoBox_Label.config(text = "")
@@ -67,7 +64,6 @@ class motorGUI:
 			self.status_Label.config(text = "")
 			self.status_Message.config(text = "")
 			self.unit_Label.config(text = "")
-			
 			self.selectedMotor.set(0)
 			self.master.update_idletasks()
 
@@ -94,31 +90,27 @@ class motorGUI:
 		self.disable(self.port_Entry)
 
 		# Create new client Socket
-		# self.clientSocket = None
 		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 
 		self.connectionStatus_Label.config(fg = "black", text = "Establishing connection...")
 		self.master.update_idletasks()
 
-		print "connecting to",ip_address, port
-		self.clientSocket.connect((ip_address, port)) # uncomment when ready
-		print "connected"
-		self.connectionStatus_Label.config(fg = "green3", text = "Connected")
-		self.setMode("Motor interaction")
+		# print "connecting to",ip_address, port
+		# self.clientSocket.connect((ip_address, port)) # uncomment when ready
+		# print "connected"
+		# self.connectionStatus_Label.config(fg = "green3", text = "Connected")
+		# self.setMode("Motor interaction")
 
-		# # Try to connect to socket with IP_ADDRESS and PORT
-		# try:
-		# 	# self.clientSocket.settimeout(10)
-		# 	print "connecting to"
-		# 	self.clientSocket.connect((ip_address, port)) # uncomment when ready
-		# 	# self.clientSocket.settimeout(None)
-		# 	print "Connected"
-		# 	self.connectionStatus_Label.config(fg = "green3", text = "Connected")
-		# 	self.setMode("Motor interaction")
-		# except:
-		# 	print "Unable to connect"
-		# 	self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
-		# 	self.setMode("Connect to RPi")
+		# Try to connect to socket with IP_ADDRESS and PORT
+		try:
+			self.clientSocket.connect((ip_address, port)) # uncomment when ready
+			print "Connected"
+			self.connectionStatus_Label.config(fg = "green3", text = "Connected")
+			self.setMode("Motor interaction")
+		except:
+			print "Unable to connect"
+			self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
+			self.setMode("Connect to RPi")
 
 	def disconnectRPi(self):
 		print "Disconnected"
@@ -133,32 +125,35 @@ class motorGUI:
 		self.setMode("Connect to RPi")
 		
 
-	def isConnected(self):
-		# print "isConnected()"
-		# send ping, get response
-		try:
-			self.clientSocket.send("Are you alive?\n")
-			response = self.clientSocket.recv(1000) #receive up to 1000 characters (bytes)
-			# print "isConnected() try successful"
+	def isConnected(self): # send ping, get response
+		# only perform this once for every 100 times.
+		self.checkConnectionCount = self.checkConnectionCount + 1
+		# if self.checkConnectionCount == 1:
+		# 		self.t = time.time() # get rid of this
+		
+		# Check every 10 seconds if connection is broken
+		if self.checkConnectionCount == 200:
+			self.checkConnectionCount = 0
+			# print time.time() - self.t # get rid of this
+			try:
+				self.clientSocket.send("Are you alive?\n")
+				response = self.clientSocket.recv(1000) #receive up to 1000 characters (bytes)
+				return True
+			except:
+				return False
+		else:
 			return True
-		except:
-			return False
 
 	def idleLoop(self):
 		# This method runs when there are no other tasks running.
-
 		if self.mode == "Connect to RPi":
-			# Refresh every 100ms
-			self.doNothing()
-
+			pass 
 		elif self.mode == "Motor interaction":
 			# This loop does several things:
 			# - Check if connection is still established
 			# - Checks value_Entry for a valid entry
 			# - Enables/disables the moveMotor_Button if entry is selected motor's range
 			# - Sets the status message box on above conditions
-
-			# Check if connection is broken
 			if self.isConnected() != True:
 				print "Connection failed"
 				self.connectionStatus_Label.config(fg = "red", text = "Connection Failed")
@@ -195,11 +190,11 @@ class motorGUI:
 				self.setStatusMsg(msg, statusType = "Error:", color = "red")
 				self.moveCompleteMsg = False
 
-		# Refresh every 100ms
+		# Refresh every 100ms (Does this actually work every 100ms?)
 		self.master.after(100, self.idleLoop) 
 
 	def valueInRange(self, button, value):
-		# value is a non-negative integer
+		# value is a non-negative integer.
 		if button == 1: # Servo Gearbox
 			if value < 37 or value > 154:
 				return ["F", "Value not in range."]
@@ -223,19 +218,17 @@ class motorGUI:
 	def selectMotorButton(self):
 		self.value_Entry.focus_set() # focus on entryField
 		motor = self.selectedMotor.get()
-
 		# set unit_Label
 		if motor in [1, 2, 3]:
 			self.unit_Label.config(text = "degrees")
 		else:
 			self.unit_Label.config(text = "steps")
-
 		# set Message Box Title and Message
 		if motor == 1:
 			self.infoBox_Label.config(text = "Servo Gearbox:")
 			self.infoBox_Message.config(text = "- Move the gearbox from its current position to the goal position entered in the 'Value' field.\n\n- Range = [37, 154] degrees.\n\n")
 		elif motor == 2:
-			self.infoBox_Label.config(text = "Linear Actuator - middle:")
+			self.infoBox_Label.config(text = "Linear Actuator - Middle:")
 			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [0, 180] degrees.\n\n")
 		elif motor == 3:
 			self.infoBox_Label.config(text = "Linear Actuator - Bottom:")
@@ -267,24 +260,19 @@ class motorGUI:
 		text = self.infoBox_Label['text']
 		command = text + value + "\n"
 
-
 		# send command to RPi
 		self.setStatusMsg("Sending command to RPi...")
-		print "sending command:", command
+		print "Sending command:", command
 		self.clientSocket.send(command)
 		
 		# get response from RPi
-		self.setStatusMsg("Wait for RPi response. (If no response, quit with error message).")
+		self.setStatusMsg("Waiting for RPi response...")
 		response = self.clientSocket.recv(1000)
 		print "RPi response:", response
 
 		# wait for RPi response that motor movement is complete
-		self.setStatusMsg("Motor moving... Waiting for RPi signal that movement is completed.")
-		# respone = self.clientSocket.recv(1000)
-		self.master.after(3000)
-
-		# This simluates a motor moving.
-		self.setStatusMsg("RPi signal received.")
+		self.setStatusMsg("Motor moving...")
+		response = self.clientSocket.recv(1000)
 
 		elapsed_time = str(int(time.time() - t))
 		self.setStatusMsg("Motor movement complete. Time elapsed: " + elapsed_time + " seconds.")
@@ -337,16 +325,12 @@ class motorGUI:
 		# -------- IP and port connection 
 		self.connectRPi_Label = Label(master, text = "Connect to Raspberry Pi:", font = "Helvetica 15 bold underline", pady = 8)
 		self.connectRPi_Label.grid(row = 2, column = 2, columnspan = 17, sticky = "sw")
-
 		self.ip_Label = Label(master, text = "IP:")
 		self.ip_Label.grid(row = 3, column = 3, columnspan = 1, sticky = "e")
-
 		self.port_Label = Label(master, text = "Port:")
 		self.port_Label.grid(row = 4, column = 3, columnspan = 1, sticky = "e")
-
 		self.ip_Entry = Entry(master, width = 12)
 		self.ip_Entry.grid(row = 3, column = 4, columnspan = 10, sticky = "w")
-
 		self.port_Entry = Entry(master, width = 12) # casted to int() in connectRPi() method 
 		self.port_Entry.grid(row = 4, column = 4, columnspan = 10, sticky = "w")
 
@@ -386,18 +370,16 @@ class motorGUI:
 		self.mb3.grid(row = 8, column = 3, columnspan = 15, sticky = "w")
 		self.mb4.grid(row = 9, column = 3, columnspan = 16, sticky = "w")
 		self.mb5.grid(row = 10, column = 3, columnspan = 18, sticky = "w")
-		# make a list of the motor buttons
+		# make a list of the motor buttons for quick reference
 		self.motorButtonList = [self.mb1, self.mb2, self.mb3, self.mb4, self.mb5]
 
-		# -------- Entry Field with Labels
+		# -------- Entry Field with Value and Unit Labels
 		self.value_Label = Label(master, text = "Enter Value:", font = "Helvetica 15 bold underline")
 		self.value_Label.grid(row = 11, column = 2, columnspan = 4, sticky = "w")
-
 		self.value_Entry = Entry(master, width = 10)
 		self.value_Entry.selection_range(0, END)
 		self.value_Entry.selection_clear()
 		self.value_Entry.grid(row = 11, column = 6, columnspan = 6, sticky = "w", pady = 10, padx = 2)
-
 		self.unit_Label = Label(master, text = "", fg = "blue")
 		self.unit_Label.grid(row = 11, column = 12, columnspan = 6, sticky = "w", pady = 10)
 
