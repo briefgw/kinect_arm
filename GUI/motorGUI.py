@@ -273,6 +273,7 @@ class motorGUI:
 		# wait for RPi response that motor movement is complete
 		self.setStatusMsg("Motor moving...")
 		response = self.clientSocket.recv(1000)
+		print "RPi response:", response
 
 		elapsed_time = str(int(time.time() - t))
 		self.setStatusMsg("Motor movement complete. Time elapsed: " + elapsed_time + " seconds.")
