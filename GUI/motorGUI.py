@@ -4,6 +4,8 @@
 
 # motorDemo.py builds and runs this GUI.
 
+# ssh karlpi3@192.168.2.200
+
 # Note: all commands sent to the socket must have \n character at the end.
 
 # Bugs that I do not know how to fix.
@@ -241,7 +243,7 @@ class motorGUI:
 			self.infoBox_Message.config(text = "- Move the stepper motor counterclockwise the number of steps entered in the 'Value' field.\n\n- Steps to revolve around the table = #### steps.\n\n")
 
 	def moveMotor(self):
-		print "Move motor begin"
+		print "\nMove motor begin"
 
 		# disable moveMotor_Button, value_Entry, motorButtonList
 		self.disable(self.moveMotor_Button)
@@ -262,18 +264,18 @@ class motorGUI:
 
 		# send command to RPi
 		self.setStatusMsg("Sending command to RPi...")
-		print "Sending command:", command.rstrip()
+		print "--Sending command: (%s)", %command.rstrip()
 		self.clientSocket.send(command)
 		
 		# get response from RPi
 		self.setStatusMsg("Waiting for RPi response...")
 		response = self.clientSocket.recv(1000)
-		print "RPi response:", response
+		print "--RPi response: (%s)", %response
 
 		# wait for RPi response that motor movement is complete
-		self.setStatusMsg("Motor moving...")
+		self.setStatusMsg("Moving motor...")
 		response = self.clientSocket.recv(1000)
-		print "RPi response:", response
+		print "--RPi response: (%s)", %sresponse
 
 		elapsed_time = str(int(time.time() - t))
 		self.setStatusMsg("Motor movement complete. Time elapsed: " + elapsed_time + " seconds.")
@@ -285,7 +287,6 @@ class motorGUI:
 		self.value_Entry.selection_range(0, END) # highlight the text
 
 		# Do NOT enable anything here. They must be enabled after method return. Trust me.
-		print "Move motor completed\n"
 
 	def setStatusMsg(self, statusMessage, statusType = "Status:", color = "green3"):
 		# Do NOT call self.clearStatusMsg() here.

@@ -126,7 +126,7 @@ if __name__ == "__main__":
 			# if len(cmd == 0):
 			# 	sv.send_response("--Received empty command");
 
-			print >> sys.stderr, "--Command received: (%s)"%cmd
+			print >> sys.stderr, "--Command received: (%s)" %cmd
 				
 			cmdTokens = cmd.split(':', 1)
 			motor = cmdTokens[0]
