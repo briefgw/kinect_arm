@@ -49,7 +49,7 @@ class motorGUI:
 
 
 	def setMode(self, mode):
-		print "set mode = ",mode
+		print "--Set mode = ",mode
 		self.mode = mode
 
 		# Two modes
@@ -106,20 +106,20 @@ class motorGUI:
 		# Try to connect to socket with IP_ADDRESS and PORT
 		try:
 			self.clientSocket.connect((ip_address, port)) # uncomment when ready
-			print "Connected"
+			print "\nConnected"
 			self.connectionStatus_Label.config(fg = "green3", text = "Connected")
 			self.setMode("Motor interaction")
 		except:
-			print "Unable to connect"
+			print "\nUnable to connect"
 			self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
 			self.setMode("Connect to RPi")
 
 	def disconnectRPi(self):
-		print "Disconnected"
+		print "\nDisconnected"
 		self.clientSocket.shutdown(socket.SHUT_RDWR)
-		print "shutdown done"
+		print "--shutdown done"
 		self.clientSocket.close()
-		print "close done"
+		print "--close done"
 		self.clientSocket = None
 		self.connectionStatus_Label.config(fg = "red", text = "Disconnected")
 		self.master.update_idletasks()
@@ -260,22 +260,22 @@ class motorGUI:
 		# create command to send to RPi
 		value = str(self.value_Entry.get()) # NOTE: typing -0 works. might need to fix that
 		text = self.infoBox_Label['text']
-		command = text + value + "\n"
+		command = text + value + "\n" # for socket command
 
 		# send command to RPi
 		self.setStatusMsg("Sending command to RPi...")
-		print "--Sending command: (%s)", %command.rstrip()
+		print "--Sending command: (%s)" %command.rstrip()
 		self.clientSocket.send(command)
 		
 		# get response from RPi
 		self.setStatusMsg("Waiting for RPi response...")
 		response = self.clientSocket.recv(1000)
-		print "--RPi response: (%s)", %response
+		print "--RPi response: (%s)" %response
 
 		# wait for RPi response that motor movement is complete
 		self.setStatusMsg("Moving motor...")
 		response = self.clientSocket.recv(1000)
-		print "--RPi response: (%s)", %sresponse
+		print "--RPi response: (%s)" %response
 
 		elapsed_time = str(int(time.time() - t))
 		self.setStatusMsg("Motor movement complete. Time elapsed: " + elapsed_time + " seconds.")
