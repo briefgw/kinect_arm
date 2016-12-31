@@ -52,7 +52,7 @@ class rpiserver:
 
 	def get_command(self):
 		if self.debug:
-			print >> sys.stderr,"\nReading line from socket"
+			print >> sys.stderr,"Reading line from socket"
 		return self.fd.readline()
 
 	def ImAlive_response(self):

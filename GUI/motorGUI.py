@@ -262,7 +262,7 @@ class motorGUI:
 
 		# send command to RPi
 		self.setStatusMsg("Sending command to RPi...")
-		print "Sending command:", command
+		print "Sending command:", command.rstrip()
 		self.clientSocket.send(command)
 		
 		# get response from RPi
@@ -285,7 +285,7 @@ class motorGUI:
 		self.value_Entry.selection_range(0, END) # highlight the text
 
 		# Do NOT enable anything here. They must be enabled after method return. Trust me.
-		print "Move motor completed"
+		print "Move motor completed\n"
 
 	def setStatusMsg(self, statusMessage, statusType = "Status:", color = "green3"):
 		# Do NOT call self.clearStatusMsg() here.
