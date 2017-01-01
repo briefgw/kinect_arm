@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Karl Preisner
-# December 30, 2016
+# December 31, 2016
 # This is a server for the Raspberry Pi to accept motor movement commands from a client.
 
 import os
@@ -9,7 +9,12 @@ import sys
 import socket
 import time
 
-IP_ADDRESS = "192.168.2.200"
+# loopback IP on Mac
+IP_ADDRESS = "127.0.0.1"
+
+# Raspberry Pi static IP
+# IP_ADDRESS = "192.168.2.200"
+
 PORT = 8188
 
 
@@ -23,23 +28,23 @@ class rpiserver:
 		self.addr = ipaddr
 
 		if self.debug:
-			print >> sys.stderr, "Binding to ",self.addr, "port", self.port
+			print >> sys.stderr, "- Binding to",self.addr, "port", self.port
 			self.serversocket.bind((self.addr,self.port))
 
 		if self.debug:
-			print >> sys.stderr, "Listening"
+			print >> sys.stderr, "- Listening..."
 		self.serversocket.listen(10)
 
 
 	def accept_connection(self):
 		if self.debug:
-			print >> sys.stderr, "Waiting for connection", self.addr, "port", self.port
+			print >> sys.stderr, "\nWaiting for connection", self.addr, "port", self.port
 		# this will block until a client connects 
 		(self.clientsocket, self.client) = self.serversocket.accept()
 		# a client has connected to the socket
 		# self.clientsocket is a new socket object for reading/writing to client
 		if self.debug:
-			print >> sys.stderr, "Connection accepted from",self.clientsocket.getpeername()
+			print >> sys.stderr, "- Connection accepted from",self.clientsocket.getpeername()
 
 		# get the file descriptor from the client socket object
 		self.fn = self.clientsocket.fileno()
@@ -47,12 +52,12 @@ class rpiserver:
 		# so that readline() will block for complete lines
 		self.fd = os.fdopen(self.fn,'r+')
 		if self.debug:
-			print >> sys.stderr,"Opened buffered file descriptor"
+			print >> sys.stderr,"- Opened buffered file descriptor"
 		return True
 
 	def get_command(self):
-		if self.debug:
-			print >> sys.stderr,"Reading line from socket"
+		# if self.debug:
+		# 	print >> sys.stderr,"Reading line from socket"
 		return self.fd.readline()
 
 	def ImAlive_response(self):
@@ -63,7 +68,7 @@ class rpiserver:
 
 	def send_response(self, msg):
 		if self.debug:
-			print >> sys.stderr,"--Sending response: (%s)" %msg
+			print >> sys.stderr,"-- Sending response: (%s)" %msg
 		self.fd.write(msg)
 		self.fd.flush()
 
@@ -97,10 +102,11 @@ if __name__ == "__main__":
 		IP_ADDRESS = sys.argv[1]
 	if len(sys.argv) > 2:
 		PORT = int(sys.argv[2])
-	print >> sys.stderr, "Accepting connection on %s: %d"%(IP_ADDRESS, PORT)
+	print >> sys.stderr, "\nAccepting connection on %s: %d"%(IP_ADDRESS, PORT)
 
 	# call constructor for rpiserver class
 	sv = rpiserver(IP_ADDRESS, PORT, True)
+	
 	# loop accepting new connections
 	while True:
 		sv.accept_connection()
@@ -111,7 +117,10 @@ if __name__ == "__main__":
 			if len(cmd) <= 0: # client must have closed connection
 				print >> sys.stderr,"Closing client socket"
 				# graceful shutdown of client socket
-				sv.clientsocket.shutdown(socket.SHUT_RDWR)
+				try:
+					sv.clientsocket.shutdown(socket.SHUT_RDWR)
+				except:
+					pass
 				# break loop and wait for next connection
 				break
 			
@@ -126,8 +135,12 @@ if __name__ == "__main__":
 			# if len(cmd == 0):
 			# 	sv.send_response("--Received empty command");
 
-			print >> sys.stderr, "--Command received: (%s)" %cmd
-				
+			print >> sys.stderr, "Command received: (%s)" %cmd
+			
+			if cmd == "hi":
+				sv.hi()
+				continue
+
 			cmdTokens = cmd.split(':', 1)
 			motor = cmdTokens[0]
 			value = int(cmdTokens[1])

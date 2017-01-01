@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+// use serial.print(), not serial.println()
+
 Servo gearboxServo;
 // gearboxServo range = [37,154]
 
@@ -24,16 +26,17 @@ void loop() {
   if(pythonCommand == "move gearboxServo to leftPosition"){
     gearboxServo.write(leftPosition);
     Serial.print("moving gearbox to leftPosition now. -Arduino");
-    delay(10*1000); //wait 10 seconds
-    Serial.println("gearbox movement completed! -Arduino");
+    delay(5*1000); //wait 5 seconds
+    Serial.print("gearbox movement completed! -Arduino");
   }
 
   if(pythonCommand == "move gearboxServo to rightPosition"){
     gearboxServo.write(rightPosition);
     Serial.print("moving gearbox rightPosition now. -Arduino");
-    delay(10*1000); //wait 10 seconds
-    Serial.println("gearbox movement completed! -Arduino");
+    delay(5*1000); //wait 5 seconds
+    Serial.print("gearbox movement completed! -Arduino");
   }
 
   pythonCommand = "";// reset pythonCommand
 }
+

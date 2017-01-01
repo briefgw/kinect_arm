@@ -1,5 +1,5 @@
 # Karl Preisner
-# December 27, 2016
+# December 31, 2016
 # GUI class for moving all four motors
 
 # motorDemo.py builds and runs this GUI.
@@ -112,14 +112,18 @@ class motorGUI:
 		except:
 			print "\nUnable to connect"
 			self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
+			# if self.mode == "Motor interaction":
 			self.setMode("Connect to RPi")
 
 	def disconnectRPi(self):
 		print "\nDisconnected"
-		self.clientSocket.shutdown(socket.SHUT_RDWR)
+		try:
+			self.clientSocket.shutdown(socket.SHUT_RDWR)
+		except:
+			pass
 		print "--shutdown done"
-		self.clientSocket.close()
-		print "--close done"
+		# self.clientSocket.close()
+		# print "--close done"
 		self.clientSocket = None
 		self.connectionStatus_Label.config(fg = "red", text = "Disconnected")
 		self.master.update_idletasks()
@@ -244,6 +248,14 @@ class motorGUI:
 
 	def moveMotor(self):
 		print "\nMove motor begin"
+
+		# check if still connected
+		if self.isConnected() != True:
+			print "Connection failed"
+			print "Move motor aborted"
+			self.connectionStatus_Label.config(fg = "red", text = "Connection Failed")
+			self.setMode("Connect to RPi")
+			return
 
 		# disable moveMotor_Button, value_Entry, motorButtonList
 		self.disable(self.moveMotor_Button)
