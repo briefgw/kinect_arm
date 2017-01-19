@@ -9,18 +9,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
   String s = "1";
   
   if (Serial.available())  {
-    
     s = Serial.readString();
-//    Serial.println(s);
   }
   delay(500);
 
   if(s == "Hello from Python!"){
-    Serial.print("Hi from Arduino!\n");
+    Serial.print("Hi from Arduino!");
   }
   s = "1";
 }

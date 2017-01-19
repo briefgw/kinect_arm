@@ -10,6 +10,7 @@ port = '/dev/cu.usbmodem1411'
 arduino = serial.Serial(port, 9600, timeout = .1)
 time.sleep(2) #give the connection two seconds to settle
 
+print "Hello from Python!"
 arduino.write("Hello from Python!")
 
 
