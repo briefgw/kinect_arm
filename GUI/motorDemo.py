@@ -9,10 +9,10 @@ from motorGUI import *
 
 
 # loopback ip
-default_IP = "127.0.0.1" 
+# default_IP = "127.0.0.1" 
 
 # RPi static IP
-# default_IP = "192.168.2.200" #string
+default_IP = "192.168.2.200" #string
 default_PORT = 8188 #int
 
 # Build and run the motorGUI

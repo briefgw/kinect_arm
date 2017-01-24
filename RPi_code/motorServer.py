@@ -8,6 +8,11 @@
 # NOTE: Opening/closing/plugging/unplugging the serial port on the Arduino will reset the Aruino application.
 # This will return the motors their default positions.
 
+# Serial ports
+# port = '/dev/cu.usbmodem1411' # Karl's Mac left USB
+# port = '/dev/cu.usbmodem1412' # Karl's Mac right USB
+# port = '/dev/ttyACM0' # Raspberry Pi 3
+
 import os
 import sys
 import socket
@@ -18,12 +23,12 @@ import serial.tools.list_ports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #       Loopback IP on Mac
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-IP_ADDRESS = "127.0.0.1"
+# IP_ADDRESS = "127.0.0.1"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     Raspberry Pi static IP
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# IP_ADDRESS = "192.168.2.200"
+IP_ADDRESS = "192.168.2.200"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #             Port
@@ -83,8 +88,10 @@ class rpiserver:
 		if self.isArduinoConnected == False: # this line may not be necessary
 			print "- Establishing serial connection with Arduino..."
 			serialPorts = list(serial.tools.list_ports.comports())
+
 			for p in serialPorts: # Cycle through all available serial ports
-				if "usb" in p[0]:
+				if "usb" in p[0] or "ACM" in p[0]:
+					print "- Found possible serial port. Trying now..."
 					try:
 						# Open serial connection to arduino.
 						self.arduino = serial.Serial(p[0], 115200, timeout = 0.1)

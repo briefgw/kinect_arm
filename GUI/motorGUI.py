@@ -196,6 +196,7 @@ class motorGUI:
 		# Create new client Socket
 		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 		self.connectionStatus_Label.config(fg = "black", text = "Establishing connection...")
+		self.master.update_idletasks()
 
 		# Try to connect to socket with IP_ADDRESS and PORT
 		try:
