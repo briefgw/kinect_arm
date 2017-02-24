@@ -5,26 +5,35 @@
 // It accepts commands to move the Servo Gearbox, middle/bottom Linear actuators.
 
 // Note: Use serial.print(), not serial.println().
+// servoGearbox range = [37,154]
 
 Servo servoGearbox;
-// servoGearbox range = [37,154]
-//int rightPosition = 37;
-//int leftPosition = 154;
+Servo middleActuator;
+Servo bottomActuator;
 
+int gearboxWaitSeconds = 10; // wait time for gearbox 
+int actuatorWaitSeconds = 24; // wait time for actuators
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~Setup~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void setup() {
-  // Attach Servo Gearbox
-  servoGearbox.attach(12);  // attaches the servo on pin 12 to the servo object
+  // Attach Servo Gearbox, middleActuator, bottomActuator
+  servoGearbox.attach(11);  // attaches the gearboxServo on pin 12 to the Servo object
+  middleActuator.attach(10);
+  bottomActuator.attach(9);
+
+
+  // Put these above attach??
+  // set starting position for Actuators (Change this when we construct the arm.)
+  middleActuator.write(90);
+  bottomActuator.write(90);
   
   // Open Serial communication with Pi
   Serial.begin(115200);
   Serial.setTimeout(100); // default is 1000ms, set to 100ms
 
-//  delay(5*1000); // wait 5 seconds for servoGearbox to go to default position
-
+  delay(5*1000); // wait 5 seconds for servoGearbox to go to default position (90 degrees)
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,9 +52,15 @@ void loop() {
   else if(masterCommand != ""){
     // First add '\n' to masterCommand string
     String tempStr = masterCommand + "\n";
+
     // Convert to char array
     char cmd[tempStr.length()];
     tempStr.toCharArray(cmd, tempStr.length());
+
+    ////////////////////////////////////////////
+    Serial.print(cmd);
+    delay(0.5*1000);
+    ////////////////////////////////////////////
     
     // Tokenize masterCommand:
     char *i, *motor, *val;
@@ -55,30 +70,39 @@ void loop() {
     // Get value, turn into an int
     val = strtok_r(NULL,"",&i);
     int value = String(val).toInt();
-    
-//    Serial.print(motor);
-//    delay(0.5*1000);
-//    Serial.print(value);
+
+    /////////////////////////////////////////////
+    Serial.print(motor);
+    delay(0.5*1000);
+    Serial.print(val);
+    delay(0.5*1000);
+    /////////////////////////////////////////////
 
     // Move Servo Gearbox to 'value'
-    if(motor = "Servo Gearbox"){
+    if(String(motor).equals("Servo Gearbox")){
+      Serial.print("motor == servoGearbox");//////////////////////////
+      delay(0.5*1000);
       Serial.print("Begin moving motor. -Arduino");
       servoGearbox.write(value);
-      delay(5*1000); //wait 5 seconds (10s to get from side to side
+      delay(gearboxWaitSeconds*1000); //wait 10 seconds
       Serial.print("Finished moving motor. -Arduino");
     }
     // Move Lineaer Actuator - Middle to 'value'
-    else if(motor = "Linear Actuator - Middle"){
+    else if(String(motor).equals("Linear Actuator - Middle")){
+      Serial.print("motor == middleActuator");/////////////////////////
+      delay(0.5*1000);
       Serial.print("Begin moving motor. -Arduino");
-      servoGearbox.write(value);
-      delay(5*1000); //wait 5 seconds (22s to get from side to side
+      middleActuator.write(value);
+      delay(actuatorWaitSeconds*1000); //wait 24 seconds
       Serial.print("Finished moving motor. -Arduino");
     }
     // Move Lineaer Actuator - Bottom to 'value'
-    else if(motor = "Linear Actuator - Bottom"){
+    else if(String(motor).equals("Linear Actuator - Bottom")){
+      Serial.print("motor == bottomActuator");/////////////////////////
+      delay(0.5*1000);
       Serial.print("Begin moving motor. -Arduino");
-      servoGearbox.write(value);
-      delay(5*1000); //wait 5 seconds (22s to get from side to side
+      bottomActuator.write(value);
+      delay(actuatorWaitSeconds*1000); //wait 24 seconds
       Serial.print("Finished moving motor. -Arduino");
     }
   }

@@ -240,13 +240,13 @@ class motorGUI:
 		# set Message Box Title and Message
 		if motor == 1:
 			self.infoBox_Label.config(text = "Servo Gearbox:")
-			self.infoBox_Message.config(text = "- Move the gearbox from its current position to the goal position entered in the 'Value' field.\n\n- Range = [37, 154] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the gearbox from its current position to the goal position entered in the 'Value' field.\n\n- Range = [65, 149] degrees.\n\n")
 		elif motor == 2:
 			self.infoBox_Label.config(text = "Linear Actuator - Middle:")
-			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [0, 180] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [20, 140] degrees.\n\n")
 		elif motor == 3:
 			self.infoBox_Label.config(text = "Linear Actuator - Bottom:")
-			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [0, 180] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [20, 140] degrees.\n\n")
 		elif motor == 4:
 			self.infoBox_Label.config(text = "Stepper Motor (clockwise):")
 			self.infoBox_Message.config(text = "- Move the stepper motor clockwise the number of steps entered in the 'Value' field.\n\n- Steps to revolve around the table = #### steps.\n\n")
@@ -265,14 +265,14 @@ class motorGUI:
 	def valueInRange(self, button, value):
 		# value is a non-negative integer.
 		if button == 1: # Servo Gearbox
-			if value < 37 or value > 154:
+			if value < 65 or value > 149:
 				return ["F", "Value not in range."]
 		elif button in [2, 3]: # Linear Actuators
-			if value < 0 or value > 180: 
+			if value < 20 or value > 140: 
 				return ["F", "Value not in range."]
 		elif button in [4, 5]: # Stepper motor
-			if value < 1:
-				return ["F", "Value must be at least 1."]
+			if value < 1 or value > 2500:
+				return ["F", "Value must be at least 1 and less than 2500."]
 		return ["T", ""] # Value in range
 
 	def convertEntryFieldToInt(self, entry):

@@ -20,6 +20,9 @@ import time
 import serial
 import serial.tools.list_ports
 
+sys.path.append('/home/karlpi3/RPi_code/stepperMotor')
+from stepperMotor import *
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #       Loopback IP on Mac
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +41,7 @@ PORT = 8188
 
 class rpiserver:
 	def __init__(self, ipaddr, port, debug = False):
-		
+
 		# Bind to 'ipaddr' on 'port'
 		self.port = port
 		self.debug = debug
@@ -55,10 +58,14 @@ class rpiserver:
 			print "- Listening..."
 		self.serversocket.listen(10)
 
+		# Set up GPIO communication with stepper motor
+		self.stepperMotor = stepperMotor()
+
 
 	def accept_connection(self):
 		if self.debug:
-			print "\nWaiting for connection on", self.addr, "port", self.port
+			# print "\nWaiting for connection on", self.addr, "port", self.port
+			print "\nWaiting for connection on %s: %d"%(self.addr, self.port)
 		# this will block until a client connects 
 		(self.clientsocket, self.client) = self.serversocket.accept()
 		
@@ -74,7 +81,7 @@ class rpiserver:
 		self.fd = os.fdopen(self.fn,'r+')
 		if self.debug:
 			print "- Opened buffered file descriptor"
-		
+
 		# Try to open serial connection to Arduino
 		self.isArduinoConnected = False
 		self.connectArduino()
@@ -91,7 +98,7 @@ class rpiserver:
 
 			for p in serialPorts: # Cycle through all available serial ports
 				if "usb" in p[0] or "ACM" in p[0]:
-					print "- Found possible serial port. Trying now..."
+					print "  - Found possible serial port. Trying now..."
 					try:
 						# Open serial connection to arduino.
 						self.arduino = serial.Serial(p[0], 115200, timeout = 0.1)
@@ -113,7 +120,7 @@ class rpiserver:
 		try:
 			self.arduino.write("Are you alive?")
 			response = ""
-			for i in range(1,1000): # allow 5 seconds 
+			for i in range(1,1000): # allow 10 seconds.
 				time.sleep(0.01)
 				response = self.arduino.readline()
 				if response == "I'm alive! -Arduino":
@@ -151,37 +158,78 @@ class rpiserver:
 			self.stepperMoveMotor(motor, value)
 
 	def arduinoMoveMotor(self, command):
+		# NOTE: In the arduino program, 10 seconds is given to move servoGearbox, 24 seconds for each actuator.
 		if self.isArduinoConnected == False:
 			print "- Arduino not connected. Retrying connection..."
 			self.connectArduino()
 
 		# Check if arduino is still connected.
 		if self.isArduinoAlive() == True:
-			# Send command to arduino.
-			# Arduino tokenizes command.
-			self.send_response("Begin moving motor")
-			time.sleep(10)
+			# Send command to arduino. Arduino tokenizes command.
+			self.arduino.write(command)
+
 			# Arduino sends to responses; wait for both.
-			self.send_response("Finished moving motor")
+			response1 = ""
+			response2 = ""
+			for i in range(1,500): # allow 5 seconds.
+				# Wait for first response
+				time.sleep(0.01)
+				response1 = self.arduino.readline()
+				if response1 == "Begin moving motor. -Arduino":
+					self.send_response("Begin moving motor")
+					break
+			if response1 == "Begin moving motor. -Arduino":
+				# Wait for second response.
+				for i in range(1,3000): # allow 30 seconds.
+					time.sleep(0.01)
+					response2 = self.arduino.readline()
+					if response2 == "Finished moving motor. -Arduino":
+						self.send_response("Finished moving motor")
+						break
+				if response2 == "":
+					print "- ERROR: Arduino move motor response 2 timed out."
+			else:
+				print "- ERROR: Arduino move motor response 1 timed out."
 		else:
 			self.send_response("Arduino not connected")
 
 	def stepperMoveMotor(self, motor, value):
 		# TODO
+		self.send_response("Begin moving motor")
 		if "(counterclockwise)" in motor:
 			# move stepper motor "value" steps counterclockwise
-			pass
+			self.stepperMotor.moveMotor(value, "counterclockwise")
 		elif "(clockwise)" in motor:
 			# move stepper motor "value" steps clockwise
-			pass
+			self.stepperMotor.moveMotor(value, "clockwise")
 
-		# Send command to stepper program.
-		self.send_response("Begin moving motor")
-		time.sleep(10)
+		time.sleep(0.5) # min communication time 
 		self.send_response("Finished moving motor")
 
 
 if __name__ == "__main__":
+	
+	# Print the logo in a cool way. - Karl Preisner
+	os.system("clear")
+	print "           |                    |          "; time.sleep(0.05)
+	print " ----------|   RASPBERRY PI 3   |----------"; time.sleep(0.05)
+	print " ----------|  Motor Controller  |----------"; time.sleep(0.05)
+	print "           |____________________|         \o"; time.sleep(0.05)
+	print "                                         __|\\"; time.sleep(0.05)
+	print "                     ______                /"; time.sleep(0.05)
+	print "                     \X^^^^^               "; time.sleep(0.05)
+	print "                    .<\\\\                   "; time.sleep(0.05)
+	print "                 ./XX/^\\\\  //              "; time.sleep(0.05)
+	print "              ./XX/^    \\\\//               "; time.sleep(0.05)
+	print "         ___/XX/^                          "; time.sleep(0.05)
+	print "        /P^V\^                             "; time.sleep(0.05)
+	print "       |( o )|                             "; time.sleep(0.05)
+	print "        \\2v4/.                             "; time.sleep(0.05)
+	print "           \XXX\.                          "; time.sleep(0.05)
+	print "             ^\XXX\.                       "; time.sleep(0.05)
+	print "                ^\XXX\___                  "; time.sleep(0.05)
+	print "__________________|  KP  |_________________"; time.sleep(0.5)
+
 	if len(sys.argv) > 1:
 		IP_ADDRESS = sys.argv[1]
 	if len(sys.argv) > 2:

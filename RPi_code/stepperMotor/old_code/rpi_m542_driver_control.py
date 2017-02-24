@@ -28,9 +28,9 @@ startSpeed = 10		# initial velocity to begin acceleration	#10 is a good slow-set
 
 
 # GPIO pin assignments
-pulse_pin = 23
-dir_pin = 24
-ena_pin = 25
+pulse_pin = 23 # blue wire
+dir_pin = 24 # yellow wire
+ena_pin = 25 # green wire
 
 def GPIOsetup():
 	# GPIO settings
@@ -62,7 +62,6 @@ motorCyclesPerArmCycle = 300/40          # = 7.5 motor cycles
 
 #===================================================================
 # Predefined SPEEDS
-#
 #		 steps/sec		 sec/step	sec/table
 speed1 = 50.0			# 0.020s	60s
 speed2 = 62.5			# 0.016s	48s
@@ -77,7 +76,6 @@ speed6 = 500.0			# 0.002s	6s
 #	
 #		1/t = s
 #		1/s = t	
-#
 #
 #	Helpful math:
 #		Speed #1: step = 0.02s, 1 rev motor/pulley (400 steps/40 teeth) = 8.0s, 1 rev arm (300 teeth) = 60s
@@ -209,7 +207,7 @@ def stepClockwise_withAccel(steps, speed):
 	print "---Ratio (distAccel(speed)/total steps): %f" % (distAccel(speed) / steps)
 	
 
-#=============================
+	#=============================
 	accelDist = distAccel(speed) # calculated distance to fully accel to speed
 	constDist = steps - (accelDist * 2.0) # calculated distance moving at constant speed
 	
@@ -379,7 +377,7 @@ def stepCounterClockwise_withAccel(steps, speed):
 
 
 # write to file the locations of the stepper in this test
-filename = "./output/relativeStepperLocation.txt"
+filename = "./relativeStepperLocation.txt"
 print("   writing file: " + filename) #This file keeps track of the relative location of the stepper motor in this session.
 file1 = open(filename, 'w')
 file1.truncate()

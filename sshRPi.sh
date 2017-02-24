@@ -1,11 +1,12 @@
-#!/bin/bash
-
+#!/usr/bin/expect
 # Creator: Karl Preisner
 # Created: 23 January 2017
 
-clear
-echo "Running script to ssh into raspberry pi 3"
-
-echo
-
-ssh karlpi3@192.168.2.200
+spawn -noecho clear
+interact
+spawn -noecho echo "Script to ssh into RPi3:\nssh karlpi3@192.168.2.200."
+interact
+spawn -noecho ssh karlpi3@192.168.2.200
+expect "assword:"
+send "trumpet1\r"
+interact
