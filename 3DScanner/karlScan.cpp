@@ -87,7 +87,6 @@ class SimpleOpenNIProcessor
       }
     }
 
-
     // This is where the action is.
     void run ()
     {
