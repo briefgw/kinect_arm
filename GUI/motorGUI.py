@@ -6,14 +6,12 @@
 
 # ssh karlpi3@192.168.2.200
 
-# Note: all commands sent to the socket must have \n character at the end.
-
 from Tkinter import *
 import tkFont
 from PIL import Image, ImageTk # sudo pip install Pillow (might need to also install pip)
 import time
-import socket
-import sys
+
+from motorServerClientSocket import *
 
 # Class motorGUI builds the GUI and has methods for button actions.
 class motorGUI:
@@ -24,14 +22,14 @@ class motorGUI:
 		# Add all components/widgets to window
 		self.addGUIcomponents(self.master)
 
-		# Set default ip address and port
+		# Set default ip address and port on GUI text boxes
 		self.ip_Entry.insert(END, default_IP)
 		self.port_Entry.insert(END, default_PORT)
 
 		# Create client Socket
-		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
+		# self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
+		# self.clientSocket = motorServerClientSocket()
 
-		self.checkConnectionCount = 0 #needs adjustment. also gets updated when isConnected() called in moveMotor_mode()
 		self.stepNum = 1 # for moveMotor method
 		
 		# Set initial mode 
@@ -90,41 +88,43 @@ class motorGUI:
 
 	def motorInteraction_mode(self):
 		# This does several things:
-		# -- Checks value_Entry for a valid entry
 		# -- Enables/disables the moveMotor_Button if entry is selected motor's range
+		# -- Checks value_Entry for a valid entry
 		# -- Sets the status message box on above conditions
 
-		# Get selected motor button and convert entry field value to int
-		button = self.selectedMotor.get()
-		value = self.convertEntryFieldToInt(self.value_Entry.get()) # turn entry field into int and catch error
-		[b, msg] = self.valueInRange(button, value) # b = T/F, msg = Error message
-
-		# in case these are disabled, enable them
+		# Set GUI components for this mode
 		self.enableWidget(self.value_Entry)
 		self.enableWidget(self.disconnect_Button)
 		for m in self.motorButtonList: # enable the motor selection buttons
 			self.enableWidget(m)
 
-		# Check value for non-negative integer
-		if value == None: # when entryField is empty
-			self.disableWidget(self.moveMotor_Button)
-			if self.moveCompleteMsg == False:
-				self.clearStatusMsg()
-		elif value < 0: # when negative number or non-digit character
-			self.disableWidget(self.moveMotor_Button)
-			self.moveCompleteMsg = False
-			self.setStatusMsg("Value must be a non-negative integer.", statusType = "Error:", color = "red")
-				
-		# For each motor, check if value is in range
-		elif b == "T":
-			if self.moveCompleteMsg == False:
-				self.clearStatusMsg()
-			self.enableWidget(self.moveMotor_Button)
-		elif b == "F":
-			self.disableWidget(self.moveMotor_Button)
-			self.setStatusMsg(msg, statusType = "Error:", color = "red")
-			self.moveCompleteMsg = False
+		# Get value from entry field.
+		v = self.value_Entry.get()
 
+		# Check if v is empty
+		if len(v) == 0: # when entryField is empty
+			self.disableWidget(self.moveMotor_Button)
+			if self.moveCompleteMsg == False:
+				self.clearStatusMsg()
+		else:
+			# Try to convert v to int
+			try:
+				value = int(v) # this line requires 'try:'
+				motor = self.selectedMotor.get() # Get selected motor
+
+				if self.clientSocket.valueInMotorRange(motor, value):
+					if self.moveCompleteMsg == False:
+						self.clearStatusMsg()
+					self.enableWidget(self.moveMotor_Button)
+				else:
+					self.disableWidget(self.moveMotor_Button)
+					self.setStatusMsg("Value not in range.", statusType = "Error:", color = "red")
+					self.moveCompleteMsg = False
+			except:
+				self.disableWidget(self.moveMotor_Button)
+				self.moveCompleteMsg = False
+				self.setStatusMsg("Value must be a non-negative integer.", statusType = "Error:", color = "red")
+			
 	def moveMotor_mode(self):
 		# this method is called from idleLoop to prevent stalling.
 		if self.stepNum == 1: # Step 1: Send command to RPi
@@ -132,31 +132,28 @@ class motorGUI:
 			self.t_i = time.time() # keep track of time elapsed
 
 			# check if still connected to RPi
-			if self.isConnected() != True:
+			if self.clientSocket.isConnected() != True:
 				print "--Connection failed. Move motor aborted."
 				self.connectionStatus_Label.config(fg = "red", text = "Connection Failed")
 				self.setMode("Connect to RPi")
 				return
 
-			self.setMode("Moving motor") # change GUI display
+			 # change GUI display
+			self.setMode("Moving motor")
+			self.setStatusMsg("Sending command to RPi...")
 
 			# create command to send to RPi
-			text = self.infoBox_Label['text']
-			value = str(self.value_Entry.get()) # NOTE: typing -0 works. might need to fix that
-			command = text + value + "\n" # '\n' needed for socket command
-
+			motor = self.selectedMotor.get()
+			value = int(self.value_Entry.get()) # NOTE: typing -0 works. might need to fix that
 			# send command to RPi
-			self.setStatusMsg("Sending command to RPi...")
-			print "--Sending command: (%s)" %command.rstrip()
-			self.clientSocket.send(command)
-
+			self.clientSocket.moveMotor(motor, value)
+			
 			self.stepNum = 2 # move to step 2 in this method.
 
 		elif self.stepNum == 2: # Step 2: Wait for first RPi response
 			# get first response from RPi
 			self.setStatusMsg("Waiting for RPi response...")
-			# response = self.clientSocket.recv(1000)
-			response = self.receiveSocket() # DOES NOT WORK YET
+			response = self.clientSocket.receive()
 				
 			if response == "Begin moving motor":
 				print "--RPi response: (%s)" %response
@@ -169,8 +166,7 @@ class motorGUI:
 		elif self.stepNum == 3: # Step 3: Wait for second RPi response
 			# wait for RPi response that motor movement is complete
 			self.setStatusMsg("Moving motor...")
-			# response = self.clientSocket.recv(1000)
-			response = self.receiveSocket() # DOES NOT WORK YET
+			response = self.clientSocket.receive()
 			if response == "Finished moving motor":
 				print "--RPi response: (%s)" %response
 				elapsed_time = str(int(time.time() - self.t_i))
@@ -181,108 +177,69 @@ class motorGUI:
 			self.stepNum = 1 # for next time
 			self.moveCompleteMsg = True # Used in idleLoop()
 			self.value_Entry.selection_range(0, END) # highlight the text in the value field
-			# Do NOT enable anything here. They must be enabled after method return. Trust me.
-			self.setMode("Motor interaction") # also button
+			# Do NOT enable GUI components here. They must be enabled after method returns. Trust me.
+			self.setMode("Motor interaction")
 		
 	def connectRPi_button(self):
 		ip_address = self.ip_Entry.get()
 		port = int(self.port_Entry.get())
 
-		# Disable wigits while trying to connect
+		# Update GUI. Disable wigits while trying to connect. Change label.
 		self.disableWidget(self.connect_Button)
 		self.disableWidget(self.ip_Entry)
 		self.disableWidget(self.port_Entry)
-
-		# Create new client Socket
-		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 		self.connectionStatus_Label.config(fg = "black", text = "Establishing connection...")
 		self.master.update_idletasks()
 
+		# Create new client Socket
+		self.clientSocket = motorServerClientSocket()
+
 		# Try to connect to socket with IP_ADDRESS and PORT
-		try:
-			# connect to client
-			self.clientSocket.connect((ip_address, port))
-			# wait for "I'm alive" response
-			response = self.clientSocket.recv(1000) # blocking 
-			print "--RPi response: (%s)" %response
-			if response == "I'm alive!":
-				print "\nConnected"
-				self.connectionStatus_Label.config(fg = "green3", text = "Connected")
-				self.selectedMotor.set(1) # default motor selection to first radio button
-				self.setMode("Motor interaction")
-		except:
+		if self.clientSocket.connect(ip_address, port):
+			print "\nConnected"
+			self.connectionStatus_Label.config(fg = "green3", text = "Connected")
+			self.selectedMotor.set(1) # default motor selection to first radio button
+			self.setMode("Motor interaction")
+		else:
 			print "\nUnable to connect"
 			self.connectionStatus_Label.config(fg = "red", text = "Unable to connect")
-			# if self.mode == "Motor interaction":
 			self.setMode("Connect to RPi")
 
 	def disconnectRPi_button(self):
-		print "\nDisconnected"
-		try:
-			self.clientSocket.shutdown(socket.SHUT_RDWR)
-		except:
-			pass
-		print "--Socket shutdown complete."
-		# self.clientSocket.close()
-		# print "--close done"
-		self.clientSocket = None
-		self.connectionStatus_Label.config(fg = "red", text = "Disconnected")
-		self.setMode("Connect to RPi")
+		if self.clientSocket.disconnect():
+			self.clientSocket = None
+			self.connectionStatus_Label.config(fg = "red", text = "Disconnected")
+			self.setMode("Connect to RPi")
 
 	def selectMotor_radioButton(self):
 		self.value_Entry.focus_set() # focus on entryField
 		motor = self.selectedMotor.get()
+		
 		# set unit_Label
 		if motor in [1, 2, 3]:
 			self.unit_Label.config(text = "degrees")
 		else:
 			self.unit_Label.config(text = "steps")
+
+		# Get motor's range
+		motorRange = str(self.clientSocket.getMotorRange(motor))
+
 		# set Message Box Title and Message
 		if motor == 1:
 			self.infoBox_Label.config(text = "Servo Gearbox:")
-			self.infoBox_Message.config(text = "- Move the gearbox from its current position to the goal position entered in the 'Value' field.\n\n- Range = [65, 149] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the gearbox from its current position to the goal position entered in the 'Value' field.\n\n- Range: " + motorRange + " degrees.\n\n")
 		elif motor == 2:
 			self.infoBox_Label.config(text = "Linear Actuator - Middle:")
-			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [20, 140] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range: " + motorRange + " degrees.\n\n")
 		elif motor == 3:
 			self.infoBox_Label.config(text = "Linear Actuator - Bottom:")
-			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range = [20, 140] degrees.\n\n")
+			self.infoBox_Message.config(text = "- Move the actuator from its current position to the goal position entered in the 'Value' field.\n\n- Range: " + motorRange + " degrees.\n\n")
 		elif motor == 4:
 			self.infoBox_Label.config(text = "Stepper Motor (clockwise):")
-			self.infoBox_Message.config(text = "- Move the stepper motor clockwise the number of steps entered in the 'Value' field.\n\n- Steps to revolve around the table = #### steps.\n\n")
+			self.infoBox_Message.config(text = "- Move the stepper motor clockwise the number of steps entered in the 'Value' field.\n\n- Range: " + motorRange + " degrees.\n\n")
 		elif motor == 5:
 			self.infoBox_Label.config(text = "Stepper Motor (counterclockwise):")
-			self.infoBox_Message.config(text = "- Move the stepper motor counterclockwise the number of steps entered in the 'Value' field.\n\n- Steps to revolve around the table = #### steps.\n\n")
-	
-	def isConnected(self):
-		try:
-			self.clientSocket.send("Are you alive?\n")
-			response = self.clientSocket.recv(1000) # receive up to 1000 characters (bytes)
-			return True
-		except:
-			return False
-
-	def valueInRange(self, button, value):
-		# value is a non-negative integer.
-		if button == 1: # Servo Gearbox
-			if value < 65 or value > 149:
-				return ["F", "Value not in range."]
-		elif button in [2, 3]: # Linear Actuators
-			if value < 20 or value > 140: 
-				return ["F", "Value not in range."]
-		elif button in [4, 5]: # Stepper motor
-			if value < 1 or value > 2500:
-				return ["F", "Value must be at least 1 and less than 2500."]
-		return ["T", ""] # Value in range
-
-	def convertEntryFieldToInt(self, entry):
-		if len(entry) == 0:
-			return None
-		try:
-			value = int(entry)
-		except:
-			return -1 # prints "Error: Value must be an integer."
-		return value
+			self.infoBox_Message.config(text = "- Move the stepper motor counterclockwise the number of steps entered in the 'Value' field.\n\n- Range: " + motorRange + " degrees.\n\n")
 
 	def setStatusMsg(self, statusMessage, statusType = "Status:", color = "green3"):
 		# Do NOT call self.clearStatusMsg() here.
@@ -300,16 +257,6 @@ class motorGUI:
 	def enableWidget(self, widget):
 		if widget['state'] == "disabled":
 			widget['state'] = "normal"
-
-	def receiveSocket(self):
-		response = ""
-		self.clientSocket.setblocking(0) # set to non-blocking
-		try:
-			response = self.clientSocket.recv(1000)
-		except:
-			pass #nothing received from socket
-		self.clientSocket.setblocking(1) # set to blocking
-		return response
 
 	def addGUIcomponents(self, master):
 		# Set Window Title
@@ -409,8 +356,3 @@ class motorGUI:
 		self.motorButtonList = [self.mb1, self.mb2, self.mb3, self.mb4, self.mb5] # list of the motor radio_buttons for efficient access when enabling/disabling
 		self.connectionComponentList = [self.connectRPi_Label, self.ip_Label, self.ip_Entry, self.port_Label, self.port_Entry, self.connect_Button]
 		self.motorComponentList = [self.disconnect_Button, self.selectMotor_Label, self.mb1, self.mb2, self.mb3, self.mb4, self.mb5, self.value_Label, self.value_Entry, self.unit_Label, self.moveMotor_Button, self.infoBox_Label, self.status_Label]
-
-
-
-
-

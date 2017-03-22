@@ -4,20 +4,18 @@
 # December 23, 2016
 # Control motors with GUI
 
-
 from motorGUI import *
-
 
 # loopback ip
 # default_IP = "127.0.0.1" 
 
 # RPi static IP
-default_IP = "192.168.2.200" #string
-default_PORT = 8188 #int
+default_IP = "192.168.2.200" # string
+default_PORT = 8188 # int
 
-# Build and run the motorGUI
+# Build and the motorGUI
 root = Tk()
-gui = motorGUI(root, default_IP, default_PORT) # make an instance of motorGUI
+motorGUI = motorGUI(root, default_IP, default_PORT) # make an instance of motorGUI
 
-# Main Loop
+# Run motorGUI
 root.mainloop()

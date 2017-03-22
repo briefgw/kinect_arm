@@ -39,21 +39,28 @@ const int max_actuator_pulse = 2000;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~Setup~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void setup() {
-  // Set the starting positions for each motor (Change this when we construct the arm.)
-  servoGearbox.write(105);
-  middleActuator.write(20);
-  bottomActuator.write(20);
-  
   // Attach servoGearbox, middleActuator, bottomActuator
   servoGearbox.attach(servoGearboxPin);  // attaches the gearboxServo to a Servo object
   middleActuator.attach(middleActuatorPin, min_actuator_pulse, max_actuator_pulse);
   bottomActuator.attach(bottomActuatorPin, min_actuator_pulse, max_actuator_pulse);
 
+  // Set the starting positions for each motor (Change this when we construct the arm.)
+  servoGearbox.write(105);
+  middleActuator.write(20);
+  bottomActuator.write(20);
+
   // Open Serial communication with RPi
   Serial.begin(115200);
+//  Serial.begin(9600);
   Serial.setTimeout(100); // Set timeout to 100ms (default is 1000ms).
 
   delay(5*1000); // wait 5 seconds for servoGearbox to go to default position (105 degrees)
+  Serial.println(servoGearbox.read());
+  delay(500);
+  Serial.println(middleActuator.read());
+  delay(500);
+  Serial.println(bottomActuator.read());
+  delay(500);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
