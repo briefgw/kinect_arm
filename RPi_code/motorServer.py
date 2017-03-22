@@ -21,6 +21,7 @@ import serial
 import serial.tools.list_ports
 
 sys.path.append('/home/karlpi3/RPi_code/stepperMotor')
+# sys.path.append('./stepperMotor')
 from stepperMotor import *
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
