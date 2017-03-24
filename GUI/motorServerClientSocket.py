@@ -8,6 +8,7 @@
 # Note: all commands sent to the socket must have \n character at the end.
 
 import socket
+import time
 
 
 class motorServerClientSocket:
@@ -95,6 +96,8 @@ class motorServerClientSocket:
 				return False
 		return True
 
+
+	# This is used for the GUI. It needs to be updated along with the GUI.
 	def moveMotor(self, motor, value):
 		if self.valueInMotorRange(motor, value) == False:
 			print "--Value not in motor range. Aborting moveMotor."
@@ -114,3 +117,52 @@ class motorServerClientSocket:
 		command = m + str(value) + "\n" # '\n' needed for socket command
 		print "--Sending command: (%s)" %command.rstrip()
 		self.clientSocket.send(command)
+
+	# Send command to RPi server to move motor.
+	def moveMotorCommand(self, motor, value):
+		print "Move motor:"
+		if self.valueInMotorRange(motor, value) == False:
+			print "--Value not in motor range. Aborting moveMotor."
+			return
+		m = ""
+		if motor == 1:
+			m = "Servo Gearbox:"
+		elif motor == 2:
+			m = "Linear Actuator - Middle:"
+		elif motor == 3:
+			m = "Linear Actuator - Bottom:"
+		elif motor == 4:
+			m = "Stepper Motor (clockwise):"
+		elif motor == 5:
+			m = "Stepper Motor (counterclockwise):"
+
+		command = m + str(value) + "\n" # '\n' needed for socket command
+		print "--Sending command: (%s)" %command.rstrip()
+		self.send(command)
+
+	# Receive response from server after it was commanded to move a motor
+	def moveMotorResponse(self):
+		# Get first response from RPi
+		timeout = 30.0
+		while timeout > 0.0:
+			response = self.receive()
+			if response == "Begin moving motor":
+				print "--RPi response: (%s)" %response
+				break
+			elif response == "Arduino not connected":
+				print "--RPi response: (%s)" %response
+				return False
+			time.sleep(0.05)
+			timeout = timeout-0.05
+
+		# Get the second response from RPi
+		timeout = 30.0
+		while timeout > 0.0:
+			response = self.receive()
+			if response == "Finished moving motor":
+				print "--RPi response: (%s)" %response
+				break
+			time.sleep(0.05)
+			timeout = timeout-0.05
+
+		return True
