@@ -35,7 +35,7 @@ class motorServerClientSocket:
 			return False
 
 	def disconnect(self):
-		print "\nDisconnected"
+		
 		try:
 			self.clientSocket.shutdown(socket.SHUT_RDWR)
 			self.clientSocket = None
