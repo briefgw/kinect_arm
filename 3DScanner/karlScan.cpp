@@ -68,7 +68,7 @@ class SimpleOpenNIProcessor
           ss << std::setprecision (12) << pcl::getTime () * 100 << ".pcd";
           pcl::PCDWriter w;
           w.writeBinaryCompressed (ss.str (), *cloud);
-          std::cout << "Wrote point clouds to file: " << ss.str () << std::endl;
+          std::cout << "\033[2;37mWrote point clouds to file: \033[2;36m" << ss.str () << "\033[0m" << std::endl;
         }
       }
     }

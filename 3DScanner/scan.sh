@@ -23,7 +23,7 @@ NC="\033[0m"
 
 cd /home/workstation5/workplace/source/cameraarm/3DScanner
 
-echo -e "\n${BLUE}Running script './scan.sh'${NC}"
+# echo -e "\n${BLUE}Running script './scan.sh'${NC}"
 
 cd scans
 
@@ -60,9 +60,11 @@ elif [ -d "$argv" ]; then
 fi
 
 
-# echo -e "\n${BLUE}Begin scan${NC}"
-
+echo -e "\n${BLUE}Reset Kinect:${NC}"
 killall XnSensorServer
+
+# Begin scan
+echo -e "${BLUE}Start camera feed:${NC}"
 /home/workstation5/workplace/source/cameraarm/3DScanner/build/karlScan &
 scanPID=$!
 
@@ -75,4 +77,5 @@ while true; do
 	fi
 done
 
-# echo -e "${BLUE}Scan complete!${NC}"
+echo -e "${BLUE}Finished scanning images.${NC}"
+echo -e "Scans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC}"
