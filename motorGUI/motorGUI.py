@@ -261,14 +261,17 @@ class motorGUI:
 	def addGUIcomponents(self, master):
 		# Set Window Title
 		master.title("Camera Arm Motors")
+
+		# Set background color
+		master.configure(background="white")
 		
 		# Set Window Dimensions
-		master.minsize(width = 650, height = 650)
-		master.maxsize(width = 650, height = 650)
+		master.minsize(width = 700, height = 700)
+		master.maxsize(width = 000, height = 700)
 
 		# -------- Image: 256x256
 		self.armImage = ImageTk.PhotoImage(Image.open("arm_256x256.jpg"))
-		self.armImage_Label = Label(master, image = self.armImage)
+		self.armImage_Label = Label(master, image = self.armImage, bd = 0)
 		self.armImage_Label.grid(row = 2, column = 20, columnspan = 30, rowspan = 14, sticky = "", padx = 30, pady = 0)
 
 		# -------- Title Label
@@ -276,42 +279,42 @@ class motorGUI:
 		self.title_Label.grid(row = 0, column = 0, rowspan = 2, columnspan = 50, pady = 20, padx = 190, ipadx = 40, ipady = 10)
 
 		# -------- IP and port connection 
-		self.connectRPi_Label = Label(master, text = "Connect to Raspberry Pi:", font = "Helvetica 15 bold underline", pady = 8)
+		self.connectRPi_Label = Label(master, text = "Connect to Raspberry Pi:", font = "Helvetica 15 bold underline", pady = 8, bg = "white")
 		self.connectRPi_Label.grid(row = 2, column = 2, columnspan = 17, sticky = "sw")
-		self.ip_Label = Label(master, text = "IP:")
+		self.ip_Label = Label(master, text = "IP:", font = "Helvetica 12", bg = "white")
 		self.ip_Label.grid(row = 3, column = 3, columnspan = 1, sticky = "e")
-		self.port_Label = Label(master, text = "Port:")
+		self.port_Label = Label(master, text = "Port:", font = "Helvetica 12", bg = "white")
 		self.port_Label.grid(row = 4, column = 3, columnspan = 1, sticky = "e")
-		self.ip_Entry = Entry(master, width = 12)
+		self.ip_Entry = Entry(master, width = 12, bg = "white")
 		self.ip_Entry.grid(row = 3, column = 4, columnspan = 10, sticky = "w")
-		self.port_Entry = Entry(master, width = 12) # casted to int() in connectRPi_button() method 
+		self.port_Entry = Entry(master, width = 12, bg = "white") # casted to int() in connectRPi_button() method 
 		self.port_Entry.grid(row = 4, column = 4, columnspan = 10, sticky = "w")
 
 		# -------- Connection Status Label
-		self.connectionStatus_Label = Label(master, text = "Not connected", fg = "red", font = "Helvetica 13",)
+		self.connectionStatus_Label = Label(master, text = "Not connected", fg = "red", font = "Helvetica 12", bg = "white")
 		self.connectionStatus_Label.grid(row = 3, column = 14, columnspan = 18, sticky = "w")
 
 		# -------- Connect Button
-		self.connect_Button = Button(master, text = "Connect!", command = self.connectRPi_button)
-		self.connect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 14, weight = 'bold')
+		self.connect_Button = Button(master, text = "Connect!", command = self.connectRPi_button, bg = "white")
+		self.connect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 12, weight = 'bold')
 		self.connect_Button.grid(row = 4, column = 14, columnspan = 9, sticky = "w") # place 'Move motor!' button
 
 		# -------- Disconnect Button
-		self.disconnect_Button = Button(master, text = "Disconnect", command = self.disconnectRPi_button)
-		self.disconnect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 14, weight = 'bold')
+		self.disconnect_Button = Button(master, text = "Disconnect", command = self.disconnectRPi_button, bg = "white")
+		self.disconnect_Button['font'] = tkFont.Font(family = 'Helvetica', size = 12, weight = 'bold')
 		self.disconnect_Button.grid(row = 4, column = 23, columnspan = 9, sticky = "w") # place 'Move motor!' button
 
 		# -------- Select Motor Label
-		self.selectMotor_Label = Label(master, text = "Select a motor:", font = "Helvetica 15 bold underline", pady = 8)
+		self.selectMotor_Label = Label(master, text = "Select a motor:", font = "Helvetica 15 bold underline", pady = 8, bg = "white")
 		self.selectMotor_Label.grid(row = 5, column = 2, columnspan = 12, sticky = "sw")
 
 		# -------- Radio Buttons for motor selection
 		self.selectedMotor = IntVar() # default = 0
-		self.mb1 = Radiobutton(master, variable = self.selectedMotor, value = 1, command = self.selectMotor_radioButton, pady = 4)
-		self.mb2 = Radiobutton(master, variable = self.selectedMotor, value = 2, command = self.selectMotor_radioButton, pady = 4)
-		self.mb3 = Radiobutton(master, variable = self.selectedMotor, value = 3, command = self.selectMotor_radioButton, pady = 4)
-		self.mb4 = Radiobutton(master, variable = self.selectedMotor, value = 4, command = self.selectMotor_radioButton, pady = 4)
-		self.mb5 = Radiobutton(master, variable = self.selectedMotor, value = 5, command = self.selectMotor_radioButton, pady = 4)
+		self.mb1 = Radiobutton(master, variable = self.selectedMotor, value = 1, command = self.selectMotor_radioButton, pady = 4, font = "Helvetica 12", bg = "white", relief = FLAT, offrelief = FLAT)
+		self.mb2 = Radiobutton(master, variable = self.selectedMotor, value = 2, command = self.selectMotor_radioButton, pady = 4, font = "Helvetica 12", bg = "white", bd = 0)
+		self.mb3 = Radiobutton(master, variable = self.selectedMotor, value = 3, command = self.selectMotor_radioButton, pady = 4, font = "Helvetica 12", bg = "white", bd = 0)
+		self.mb4 = Radiobutton(master, variable = self.selectedMotor, value = 4, command = self.selectMotor_radioButton, pady = 4, font = "Helvetica 12", bg = "white", bd = 0)
+		self.mb5 = Radiobutton(master, variable = self.selectedMotor, value = 5, command = self.selectMotor_radioButton, pady = 4, font = "Helvetica 12", bg = "white", bd = 0)
 		self.mb1.config(text = "Servo Gearbox")
 		self.mb2.config(text = "Linear Actuator - middle")
 		self.mb3.config(text = "Linear Actuator - bottom")
@@ -324,30 +327,30 @@ class motorGUI:
 		self.mb5.grid(row = 10, column = 3, columnspan = 18, sticky = "w")
 		
 		# -------- Entry Field with Value and Unit Labels
-		self.value_Label = Label(master, text = "Enter Value:", font = "Helvetica 15 bold underline")
-		self.value_Label.grid(row = 11, column = 2, columnspan = 4, sticky = "w")
-		self.value_Entry = Entry(master, width = 10)
+		self.value_Label = Label(master, text = "Enter Value:", font = "Helvetica 15 bold underline", bg = "white")
+		self.value_Label.grid(row = 11, column = 2, columnspan = 6, sticky = "w")
+		self.value_Entry = Entry(master, width = 10, bg = "white")
 		self.value_Entry.selection_range(0, END)
 		self.value_Entry.selection_clear()
-		self.value_Entry.grid(row = 11, column = 6, columnspan = 6, sticky = "w", pady = 10, padx = 2)
-		self.unit_Label = Label(master, text = "", fg = "blue")
-		self.unit_Label.grid(row = 11, column = 12, columnspan = 6, sticky = "w", pady = 10)
+		self.value_Entry.grid(row = 11, column = 8, columnspan = 6, sticky = "w", pady = 10, padx = 2)
+		self.unit_Label = Label(master, text = "", fg = "blue", bg = "white")
+		self.unit_Label.grid(row = 11, column = 14, columnspan = 6, sticky = "w", pady = 10)
 
 		# -------- Move Motor Button
-		self.moveMotor_Button = Button(master, text = "Move motor!", command = self.moveMotor_mode)
-		self.moveMotor_Button['font'] = tkFont.Font(family = 'Helvetica', size = 14, weight = 'bold')
+		self.moveMotor_Button = Button(master, text = "Move motor!", command = self.moveMotor_mode, bg = "white")
+		self.moveMotor_Button['font'] = tkFont.Font(family = 'Helvetica', size = 12, weight = 'bold')
 		self.moveMotor_Button.grid(row = 11, column = 18, columnspan = 9, sticky = "w") # place 'Move motor!' button
 
 		# -------- Info Box
-		self.infoBox_Label = Label(master, text = "", fg = "blue", font = "Helvetica 16 underline bold", pady = 8)
+		self.infoBox_Label = Label(master, text = "", fg = "blue", font = "Helvetica 14 underline bold", pady = 8, bg = "white")
 		self.infoBox_Label.grid(row = 13, column = 2, rowspan = 2, columnspan = 20, sticky = "sw")
-		self.infoBox_Message = Message(master, text = "\n\n\n\n\n", width = 600)
+		self.infoBox_Message = Message(master, text = "\n\n\n\n\n", width = 600, bg = "white")
 		self.infoBox_Message.grid(row = 16, column = 2, rowspan = 10, columnspan = 46, sticky = "nw" )
 		
 		# -------- Status Bar
-		self.status_Label = Label(master, text = "", fg = "green3", font = "Helvetica 13 underline")
+		self.status_Label = Label(master, text = "", fg = "green3", font = "Helvetica 12 underline", bg = "white")
 		self.status_Label.grid(row = 26, column = 2, columnspan = 2, sticky = "nw")
-		self.status_Message = Message(master, text = "", width = 600, fg = "green3", font = "Helvetica 13")
+		self.status_Message = Message(master, text = "", width = 600, fg = "green3", font = "Helvetica 13", bg = "white")
 		self.status_Message.grid(row = 26, column = 4, columnspan = 46, rowspan = 3, sticky = "nw")
 		self.moveCompleteMsg = False # for displaying motor movement completion message
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Karl Preisner
 # January 19, 2017
 # GUI class for moving all four motors
@@ -13,6 +15,7 @@
 from motorServerClientSocket import *
 import sys
 import time
+import subprocess
 
 NC = "\033[0;0m"
 BLUE = "\033[0;34m"
@@ -25,6 +28,7 @@ print "\t2. Plug RPi into this computer via ethernet cable."
 print "\t3. Plug Kinect into this computer via USB cable."
 print "\t4. Manually move camera arm to \"Start\" position on table."
 print "\t5. Switch motor power block on."
+print "\t6. ssh into RPi and execute \'./runServer.sh\'"
 print BLUE+"Once you have completed these steps, press "+NC+"\"Enter\""+BLUE+" or exit with "+NC+"\"Ctrl+C\""
 
 raw_input()
@@ -44,6 +48,7 @@ else:
 	sys.exit("--Connection with RPi failed.")
 
 
+
 # 2. Move camera arm joints to initial position.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print BLUE+"\nMoving camera arm joint motors to their initial positions:"+NC
@@ -51,34 +56,51 @@ print BLUE+"\nMoving camera arm joint motors to their initial positions:"+NC
 
 # clientSocket.moveMotor("Linear Actuator - Bottom:", 35)
 
-# Move Servo Gearbox:140
-clientSocket.moveMotorCommand(1, 140)
+# Move Servo Gearbox:95
+clientSocket.moveMotorCommand(1, 95)
 if clientSocket.moveMotorResponse() == False:
 	print "Error: RPi move motor response."
 	sys.exit("--Error moving motor.")
-else:
-	"return true.."
 
-time.sleep(5)
-
-# Move Servo Gearbox:105
-clientSocket.moveMotorCommand(1, 105)
+# Move Linear Actuator - Bottom:50
+clientSocket.moveMotorCommand(3, 50)
 if clientSocket.moveMotorResponse() == False:
+	print "Error: RPi move motor response."
 	sys.exit("--Error moving motor.")
+
+
+time.sleep(2) # allow 10 seconds for joint motors to reach their initial positions
 
 
 
 # 3. Begin taking images.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+scanProcess = subprocess.Popen('/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh', stdin=subprocess.PIPE)
+time.sleep(3) # allow for the program to load. # do not adjust.
+
+
 
 # 4. Move camera arm around table.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Move stepper motor
+clientSocket.moveMotorCommand(5, 2500)
+if clientSocket.moveMotorResponse() == False:
+	print "Error: RPi move motor response."
+
+
 
 # 5. Stop taking images.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+time.sleep(1) # we need this sleep here. trust me.
+scanProcess.communicate("Stop scanning")
+
+
 
 # 6. Disconnect RPi
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-time.sleep(2)
-print BLUE+"\nDisconnected"+NC
+time.sleep(1) # we need this sleep here. trust me.
+print BLUE+"\nDisconnected from RPi"+NC
 clientSocket.disconnect()
+
+
+print BLUE+"Scan complete!"+NC

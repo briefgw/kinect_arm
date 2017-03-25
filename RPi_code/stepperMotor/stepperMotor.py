@@ -126,9 +126,9 @@ class stepperMotor:
 		decelDist = accelDist
 
 		if(float(num_steps)%2.0 == 1):
-			print "---Odd number of steps:"		
+			# print "---Odd number of steps:"		
 			if constDist < 0:	
-				print "   ---No constant speed. distAccel++"			
+				# print "   ---No constant speed. distAccel++"			
 				constDist = 0 # go straight from accel to decel
 				accelDist = accelDist + 1
 			else:
@@ -137,13 +137,13 @@ class stepperMotor:
 			constDist = num_steps - accelDist - decelDist # steps moved at constant speed
 		
 
-		print "Begin move!"
-		print "---Acceleration: %d" % self.acceleration
-		print "---Speed:        %d" % self.maxSpeed
-		print "---Total steps:  %d" % num_steps
-		print "---Total acceleration step requirement:  %d steps" % accelDist
-		print "---Total deceleration step requirement:  %d steps" % accelDist
-		print "---Ratio (accelDist)/total steps): %f" % (accelDist / num_steps)
+		# print "Begin move!"
+		# print "---Acceleration: %d" % self.acceleration
+		# print "---Speed:        %d" % self.maxSpeed
+		# print "---Total steps:  %d" % num_steps
+		# print "---Total acceleration step requirement:  %d steps" % accelDist
+		# print "---Total deceleration step requirement:  %d steps" % accelDist
+		# print "---Ratio (accelDist)/total steps): %f" % (accelDist / num_steps)
 		
 		
 		#=============================
@@ -151,7 +151,7 @@ class stepperMotor:
 		t0 = time.time()
 		totalTime = 0.0
 		currSpeed = 0.0 # speed of step at stepCount & currTime	
-		print "\n1. Begin Acceleration for %d steps..." %accelDist
+		# print "\n1. Begin Acceleration for %d steps..." %accelDist
 		for currStep in range(0, int(accelDist)):
 			if totalTime == 0:
 				currSpeed = self.startSpeed #start speed to accelerate
@@ -160,23 +160,23 @@ class stepperMotor:
 			#print "%d: %d" %(currStep,currSpeed)		
 			self.stepMotor(1, currSpeed)
 			totalTime = totalTime + (1.0/currSpeed)
-		print "   ---Finished accelerating!"
+		# print "   ---Finished accelerating!"
 		
 
 		#=============================
 		# Constant speed	
 		if constDist > 0:
-			print "2. Moving at constant speed for %d steps..." %constDist	
+			# print "2. Moving at constant speed for %d steps..." %constDist	
 			self.stepMotor(constDist, self.maxSpeed)
-			print "   ---Finished moving at constant speed!"
-		else:
-			print "2. Did not achieve full speed at this acceleration rate." 
+			# print "   ---Finished moving at constant speed!"
+		# else:
+			# print "2. Did not achieve full speed at this acceleration rate." 
 
 			
 		#=============================
 		# Decelerate
 		totalTime = 0
-		print "3. Begin Decelerating for %d steps..." %decelDist
+		# print "3. Begin Decelerating for %d steps..." %decelDist
 		for currStep in range(0, int(decelDist)):
 			if totalTime == 0:
 				currSpeed = currSpeed #start speed to decelerate
@@ -185,9 +185,9 @@ class stepperMotor:
 			#print "%d: %d" %(currStep,currSpeed)		
 			self.stepMotor(1, currSpeed)
 			totalTime = totalTime + (1.0/currSpeed)
-		print "   ---Finished decelerating!"
+		# print "   ---Finished decelerating!"
 		
-		print "Run Time: %f seconds\n" % (time.time() - t0)
+		# print "Run Time: %f seconds\n" % (time.time() - t0)
 	#end method
 
 

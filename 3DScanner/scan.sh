@@ -20,7 +20,10 @@ BLUE="\033[0;34m"
 GREEN="\033[0;32m"
 NC="\033[0m"
 
-echo -e "${BLUE}Running script './scan.sh'${NC}"
+
+cd /home/workstation5/workplace/source/cameraarm/3DScanner
+
+echo -e "\n${BLUE}Running script './scan.sh'${NC}"
 
 cd scans
 
@@ -28,7 +31,7 @@ argv="$1" # get first argument
 directory="output"
 
 if [ "$argv" == "" ]; then
-	echo -e "Using default scan file destination: ${GREEN}'./scans/$directory'${NC} \nNOTE: existing scan files will be overwritten."
+	echo -e "Using default scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC} \nNOTE: existing scan files will be overwritten."
 	if [ -d "$directory" ]; then
 		rm -rf $directory
 	fi
@@ -37,13 +40,13 @@ if [ "$argv" == "" ]; then
 
 elif [ ! -d "$argv" ]; then
 	directory="$argv"
-	echo "Creating new scan file destination: ${GREEN}'./scans/$directory'${NC}"
+	echo "Creating new scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC}"
 	mkdir $directory
 	cd $directory
 
 elif [ -d "$argv" ]; then
 	directory="$argv"
-	echo -e "Scan destination ${GREEN}'./scans/$directory'${NC} already exists. \nDo you wish to overwrite? [Y/n]"
+	echo -e "Scan destination ${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC} already exists. \nDo you wish to overwrite? [Y/n]"
 	read -p "" -n 1 -r
 	echo
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -57,14 +60,19 @@ elif [ -d "$argv" ]; then
 fi
 
 
-echo -e "${BLUE}Beginning scan now...${NC}"
+# echo -e "\n${BLUE}Begin scan${NC}"
+
 killall XnSensorServer
-../../build/karlScan &
+/home/workstation5/workplace/source/cameraarm/3DScanner/build/karlScan &
 scanPID=$!
-echo $scanPID > ../../scanPID  # write PID of karlScan to file
 
-sleep 8
-kill $scanPID
-# kill `cat ../../scanPID`        # alternative method of killing
+# wait for command from stdin to stop scanning.
+while true; do
+	read var
+	if [ "$var" == "Stop scanning" ]; then
+		kill $scanPID
+		break
+	fi
+done
 
-echo -e "${BLUE}Scan complete!${NC}"
+# echo -e "${BLUE}Scan complete!${NC}"
