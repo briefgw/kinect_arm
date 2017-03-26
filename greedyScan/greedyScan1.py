@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 # Karl Preisner
-# January 19, 2017
-# GUI class for moving all four motors
+# March 25, 2017
+
+# Run this script to scan automatically perform a greedy scan of an object.
+# Use a command line argument to specify the folder in which the scans will be placed. 
+# example:
+#     ./greedyScan1.py folder1
 
 
 # motor == 1: "Servo Gearbox:"
@@ -16,6 +20,15 @@ from motorServerClientSocket import *
 import sys
 import time
 import subprocess
+
+
+
+
+# shell script to run scan takes an optional argument that specifies the folder for placing scans.
+SCAN_SCRIPT = "/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh"
+
+
+
 
 NC = "\033[0;0m"
 BLUE = "\033[0;34m"
@@ -52,7 +65,7 @@ else:
 
 # 2. Move camera arm joints to initial position.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-print BLUE+"\nMoving camera arm joint motors to their initial positions:"+NC
+print BLUE+"\nMoving camera arm joint motors into position:"+NC
 
 
 # clientSocket.moveMotor("Linear Actuator - Bottom:", 35)
@@ -77,32 +90,35 @@ time.sleep(2) # allow 10 seconds for joint motors to reach their initial positio
 # 3. Begin taking images.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print BLUE+"\nBegin scanning images:"+NC
-scanProcess = subprocess.Popen('/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh', stdin=subprocess.PIPE)
-time.sleep(3) # allow for the program to load. # do not adjust this value
+scanProcess = subprocess.Popen([SCAN_SCRIPT, sys.argv[1]], stdin=subprocess.PIPE)
+time.sleep(2.5) # allow for the program to load. # do not adjust this value
 
 
 
 # 4. Move camera arm around table.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Move stepper motor
-print BLUE+"Begin camera arm move:"+NC
-clientSocket.moveMotorCommand(5, 2500)
+print BLUE+"Begin moving camera arm:"+NC
+
+# clientSocket.moveMotorCommand(5, 2500) # this is the maximum distance we can scan.
+clientSocket.moveMotorCommand(5, 100) # use this for testing because less time
 if clientSocket.moveMotorResponse() == False:
 	print "Error: RPi move motor response."
+
 print BLUE+"Camera arm finished moving."+NC
 
 
 # 5. Stop taking images.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-time.sleep(1) # we need this sleep here. trust me.
+time.sleep(0.5) # we need this sleep here. trust me.
 scanProcess.communicate("Stop scanning")
 
 
 # 6. Disconnect RPi
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-time.sleep(1) # we need this sleep here. trust me.
-print BLUE+"\nDisconnected from RPi"+NC
+time.sleep(0.5) # we need this sleep here. trust me.
+print BLUE+"\nDisconnected from RPi."+NC
 clientSocket.disconnect()
 
 print UNDERLINE_GREEN+"                                                                        "+NC
-print BLUE+"Scan complete!\n"+NC
+print UNDERLINE_GREEN+"                             Scan complete!                             \n"+NC

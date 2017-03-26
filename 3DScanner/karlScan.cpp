@@ -91,7 +91,7 @@ class SimpleOpenNIProcessor
     void run ()
     {
       save = true;
-      waitTime = 10; //Higher = fewer scans per second.
+      waitTime = 1; //Higher = fewer scans per second.
       
       // std::cout << "<Ctrl+C> to stop scanning." << std::endl;
       std::cout << std::endl;

@@ -1,29 +1,34 @@
 #!/bin/bash
 
 # Karl Preisner
-# March 22, 2017
+# March 25, 2017
 
 # This script runs the Kinect scanning program and places all scanned 
-# images in ./scans/myNewFolder 
+# images in ./scans/folder1
 
 # If no argument, all scanned images will be placed in ./scans/output.
 # All contents of this folder will be overwritten.
 
 # If argument, scanned items will be placed in a directory with that title.
-# If that folder exists, y/n prompt will appear to overwrite contents of that folder.
+# If this folder exists, it will be overwritten.
 
 # The program karlScan will run in a background process. 
-# The PID of the backgroun process is written to the file '../../scanPID'
-# After 8 seconds, this script terminates the karlScan program.
+# This script waits for stdin == "Stop scanning" 
+# Once it receives that input, it kills the child process. 
+
+# example execution:
+#    ./scan.sh folder1
+#    >Stop scanning
+
 
 BLUE="\033[0;34m"
 GREEN="\033[0;32m"
+MAGENTA="\033[0;35m"
 NC="\033[0m"
 
 
 cd /home/workstation5/workplace/source/cameraarm/3DScanner
 
-# echo -e "\n${BLUE}Running script './scan.sh'${NC}"
 
 cd scans
 
@@ -31,7 +36,7 @@ argv="$1" # get first argument
 directory="output"
 
 if [ "$argv" == "" ]; then
-	echo -e "Using default scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC} \nNOTE: existing scan files will be overwritten."
+	echo -e "${MAGENTA}Overwriting default scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC} \nNOTE: existing scan files will be overwritten."
 	if [ -d "$directory" ]; then
 		rm -rf $directory
 	fi
@@ -40,31 +45,26 @@ if [ "$argv" == "" ]; then
 
 elif [ ! -d "$argv" ]; then
 	directory="$argv"
-	echo "Creating new scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC}"
+	echo -e "${MAGENTA}Creating new scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
 	mkdir $directory
 	cd $directory
 
 elif [ -d "$argv" ]; then
 	directory="$argv"
-	echo -e "Scan destination ${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC} already exists. \nDo you wish to overwrite? [Y/n]"
-	read -p "" -n 1 -r
-	echo
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
+	echo -e "${MAGENTA}Overwriting scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
+	if [ -d "$directory" ]; then
 		rm -rf $directory
-		mkdir $directory
-		cd $directory
-	else
-		echo -e "${BLUE}Exiting.${NC}"
-		exit
 	fi
+	mkdir $directory
+	cd $directory
 fi
 
-
-echo -e "\n${BLUE}Reset Kinect:${NC}"
+# Reset Kinect camera
+echo -e "\n${BLUE}Reset Kinect Camera:${NC}"
 killall XnSensorServer
 
 # Begin scan
-echo -e "${BLUE}Start camera feed:${NC}"
+echo -e -n "\n${BLUE}Start camera feed:${NC}"
 /home/workstation5/workplace/source/cameraarm/3DScanner/build/karlScan &
 scanPID=$!
 
@@ -78,4 +78,4 @@ while true; do
 done
 
 echo -e "${BLUE}Finished scanning images.${NC}"
-echo -e "Scans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/$directory'${NC}"
+echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
