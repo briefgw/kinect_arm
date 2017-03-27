@@ -1,0 +1,7 @@
+To view a single pcd file:
+pcl_viewer 149061450917.pcd 
+
+
+
+From anywhere, to view what the camera is currently seeing:
+pcl_openni_viewer
