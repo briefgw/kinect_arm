@@ -71,19 +71,25 @@ print BLUE+"\nMoving camera arm joint motors into position:"+NC
 # clientSocket.moveMotor("Linear Actuator - Bottom:", 35)
 
 # Move Servo Gearbox:95
-clientSocket.moveMotorCommand(1, 95)
+clientSocket.moveMotorCommand(1, 70)
+if clientSocket.moveMotorResponse() == False:
+	print "Error: RPi move motor response."
+	sys.exit("--Error moving motor.")
+
+# Move Linear Actuator - Middle:50
+clientSocket.moveMotorCommand(2, 40)
 if clientSocket.moveMotorResponse() == False:
 	print "Error: RPi move motor response."
 	sys.exit("--Error moving motor.")
 
 # Move Linear Actuator - Bottom:50
-clientSocket.moveMotorCommand(3, 50)
+clientSocket.moveMotorCommand(3, 120)
 if clientSocket.moveMotorResponse() == False:
 	print "Error: RPi move motor response."
 	sys.exit("--Error moving motor.")
 
 
-time.sleep(2) # allow 10 seconds for joint motors to reach their initial positions
+time.sleep(10) # allow 10 seconds for joint motors to reach their initial positions
 
 
 
@@ -100,8 +106,8 @@ time.sleep(2.5) # allow for the program to load. # do not adjust this value
 # Move stepper motor
 print BLUE+"Begin moving camera arm:"+NC
 
-# clientSocket.moveMotorCommand(5, 2500) # this is the maximum distance we can scan.
-clientSocket.moveMotorCommand(5, 100) # use this for testing because less time
+clientSocket.moveMotorCommand(5, 2500) # this is the maximum distance we can scan.
+# clientSocket.moveMotorCommand(5, 100) # use this for testing because less time
 if clientSocket.moveMotorResponse() == False:
 	print "Error: RPi move motor response."
 
@@ -122,3 +128,5 @@ clientSocket.disconnect()
 
 print UNDERLINE_GREEN+"                                                                        "+NC
 print UNDERLINE_GREEN+"                             Scan complete!                             \n"+NC
+
+
