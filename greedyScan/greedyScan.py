@@ -30,7 +30,7 @@ SCAN_SCRIPT = "/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize camera arm joint motors. Set to default values.
 motor1_value = 100 # Servo Gearbox
-motor2_value = 20  # Linear Actuator - Middle
+motor2_value = 30  # Linear Actuator - Middle
 motor3_value = 50  # Linear Actuator - Bottom
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,14 +41,19 @@ motor3_value = 50  # Linear Actuator - Bottom
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # # Blue Desk Chair
-# motor1_value = 70
-# motor2_value = 40
-# motor3_value = 120
+# motor1_value = 70   # servo gearbox
+# motor2_value = 40   # middle actuator
+# motor3_value = 120  # bottom actuator
 
-# Einstein bobble head doll
-motor1_value = 100
-motor2_value = 20
-motor3_value = 20
+# # Einstein bobble head doll
+# motor1_value = 100
+# motor2_value = 30
+# motor3_value = 20
+
+# Schunk Arm
+motor1_value = 57
+motor2_value = 100
+motor3_value = 70
 
 
 
@@ -97,19 +102,25 @@ def main():
 	print BLUE+"\nMove camera arm joint motors into position:"+NC
 	
 	# Move Servo Gearbox
-	clientSocket.moveMotorCommand(1, motor1_value)
+	if clientSocket.moveMotorCommand(1, motor1_value) == False:
+		print "Error: RPi move motor command."
+		sys.exit("--Error moving motor. Value out of range.")
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
 		sys.exit("--Error moving motor.")
 
 	# Move Linear Actuator - Middle
-	clientSocket.moveMotorCommand(2, motor2_value)
+	if clientSocket.moveMotorCommand(2, motor2_value) == False:
+		print "Error: RPi move motor command."
+		sys.exit("--Error moving motor. Value out of range.")
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
 		sys.exit("--Error moving motor.")
 
 	# Move Linear Actuator - Bottom
-	clientSocket.moveMotorCommand(3, motor3_value)
+	if clientSocket.moveMotorCommand(3, motor3_value) == False:
+		print "Error: RPi move motor command."
+		sys.exit("--Error moving motor. Value out of range.")
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
 		sys.exit("--Error moving motor.")

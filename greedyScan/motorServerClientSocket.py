@@ -17,8 +17,8 @@ class motorServerClientSocket:
 		# create client socket
 		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 
-		self.ServoGearbox_Range = [65,149]   # degrees
-		self.MiddleActuator_Range = [20,140] # degrees
+		self.ServoGearbox_Range = [50,149]   # degrees
+		self.MiddleActuator_Range = [30,140] # degrees
 		self.BottomActuator_Range = [20,140] # degrees
 		self.StepperMotor_Range = [1,2500]   # steps
 
@@ -101,7 +101,7 @@ class motorServerClientSocket:
 		# Check if value is in range
 		if self.valueInMotorRange(motor, value) == False:
 			print "--Value not in motor range. Aborting moveMotor."
-			return
+			return False
 		
 		# Formulate command to send to RPi
 		m = ""
@@ -119,6 +119,7 @@ class motorServerClientSocket:
 		command = m + str(value) + "\n" # '\n' needed for socket command
 		print "Sending command: (%s)" %command.rstrip()
 		self.send(command)
+		return True
 
 	# Receive response from server after it was commanded to move a motor
 	def moveMotorResponse(self):
