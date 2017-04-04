@@ -17,9 +17,9 @@ class stepperMotor:
 	def __init__(self): # constructor
 		
 		# adjustable global variables
-		self.acceleration = 50.0  # magnitude of linear acceleration
+		self.acceleration = 40.0  # magnitude of linear acceleration
 		self.startSpeed = 10.0    # initial velocity to begin acceleration  # 10.0 is a good slow setting
-		self.maxSpeed = 150.0    # max speed for camera arm
+		self.maxSpeed = 50.0    # max speed for camera arm
 
 		##################################################################
 		##################################################################

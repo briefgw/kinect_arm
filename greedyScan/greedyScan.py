@@ -24,7 +24,7 @@ import subprocess
 
 # Location of the bash script to run. scan.sh takes an optional argument that specifies the folder for placing scans.
 SCAN_SCRIPT = "/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh"
-
+folder = "output" # default scan location
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,6 +32,7 @@ SCAN_SCRIPT = "/home/workstation5/workplace/source/cameraarm/3DScanner/scan.sh"
 motor1_value = 100 # Servo Gearbox
 motor2_value = 30  # Linear Actuator - Middle
 motor3_value = 50  # Linear Actuator - Bottom
+num_steps = 2500   # max number of steps around the table = 2500
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -54,12 +55,16 @@ motor3_value = 50  # Linear Actuator - Bottom
 motor1_value = 57
 motor2_value = 100
 motor3_value = 70
+num_steps = 900
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
+	if len(sys.argv) > 1: # if folder is specified
+		folder = sys.argv[1]
+
 	# Colored text
 	NC = "\033[0;0m"
 	BLUE = "\033[0;34m"
@@ -78,6 +83,7 @@ def main():
 	print "    6. ssh into RPi and execute \'./runServer.sh\'"
 	print BLUE+"Once you have completed these steps, press "+GREEN+"\"Enter\""+BLUE+" or exit with "+GREEN+"\"Ctrl+C\""+NC
 	print UNDERLINE_GREEN+"                                                                        "+NC
+	
 	raw_input()
 
 
@@ -135,7 +141,7 @@ def main():
 	# 3. Begin taking images.
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	print BLUE+"\nBegin scanning images:"+NC
-	scanProcess = subprocess.Popen([SCAN_SCRIPT, sys.argv[1]], stdin=subprocess.PIPE)
+	scanProcess = subprocess.Popen([SCAN_SCRIPT, folder], stdin=subprocess.PIPE)
 	time.sleep(2.5) # allow for the program to load. # do not adjust this value
 
 
@@ -145,7 +151,7 @@ def main():
 	# Move stepper motor
 	print BLUE+"Begin moving camera arm:"+NC
 
-	clientSocket.moveMotorCommand(5, 2500) # this is the maximum distance we can scan.
+	clientSocket.moveMotorCommand(5, num_steps) # this is the maximum distance we can scan.
 	# clientSocket.moveMotorCommand(5, 100) # use this for testing because less time
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
