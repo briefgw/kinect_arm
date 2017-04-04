@@ -18,8 +18,8 @@
  *  acheived. 
  *  
  *  Motor Ranges:
- *    - Servo Gearbox range = [65,149]
- *    - Middle linear actuator range = [20,140]
+ *    - Servo Gearbox range = [50,149]
+ *    - Middle linear actuator range = [30,140]
  *    - Bottom Linear Actuator range = [20,140]
  */
 #include <Servo.h>
@@ -45,8 +45,8 @@ void setup() {
   bottomActuator.attach(bottomActuatorPin, min_actuator_pulse, max_actuator_pulse);
 
   // Set the starting positions for each motor (Change this when we construct the arm.)
-  servoGearbox.write(105);
-  middleActuator.write(20);
+  servoGearbox.write(100);
+  middleActuator.write(30);
   bottomActuator.write(20);
 
   // Open Serial communication with RPi
