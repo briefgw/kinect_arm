@@ -55,7 +55,7 @@ num_steps = 2500   # max number of steps around the table = 2500
 motor1_value = 57
 motor2_value = 100
 motor3_value = 70
-num_steps = 900
+num_steps = 600
 
 
 
@@ -106,14 +106,7 @@ def main():
 	# 2. Move camera arm joints to initial position.
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	print BLUE+"\nMove camera arm joint motors into position:"+NC
-	
-	# Move Servo Gearbox
-	if clientSocket.moveMotorCommand(1, motor1_value) == False:
-		print "Error: RPi move motor command."
-		sys.exit("--Error moving motor. Value out of range.")
-	if clientSocket.moveMotorResponse() == False:
-		print "Error: RPi move motor response."
-		sys.exit("--Error moving motor.")
+	time.sleep(10)
 
 	# Move Linear Actuator - Middle
 	if clientSocket.moveMotorCommand(2, motor2_value) == False:
@@ -131,11 +124,28 @@ def main():
 		print "Error: RPi move motor response."
 		sys.exit("--Error moving motor.")
 
+	# Move Servo Gearbox
+	if clientSocket.moveMotorCommand(1, motor1_value) == False:
+		print "Error: RPi move motor command."
+		sys.exit("--Error moving motor. Value out of range.")
+	if clientSocket.moveMotorResponse() == False:
+		print "Error: RPi move motor response."
+		sys.exit("--Error moving motor.")
+
+
 	# Wait!
-	print BLUE+"Moving motors. Please wait..."+NC
-	time.sleep(10) # allow 10 seconds for joint motors to reach their positions
-
-
+	print BLUE+"Moving motors. Please wait (15 seconds)..."+NC
+	time.sleep(7) # allow 12 seconds for joint motors to reach their positions
+	print BLUE+"5.."+NC,
+	time.sleep(1)
+	print BLUE+"4.."+NC,
+	time.sleep(1)
+	print BLUE+"3.."+NC,
+	time.sleep(1)
+	print BLUE+"2.."+NC,
+	time.sleep(1)
+	print BLUE+"1.."+NC
+	time.sleep(1)
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	# 3. Begin taking images.
@@ -151,8 +161,9 @@ def main():
 	# Move stepper motor
 	print BLUE+"Begin moving camera arm:"+NC
 
-	clientSocket.moveMotorCommand(5, num_steps) # this is the maximum distance we can scan.
-	# clientSocket.moveMotorCommand(5, 100) # use this for testing because less time
+	# clientSocket.moveMotorCommand(5, num_steps) # this is the maximum distance we can scan.
+	clientSocket.moveMotorCommand(4, num_steps) # this is the maximum distance we can scan.
+
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
 
