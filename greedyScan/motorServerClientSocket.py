@@ -124,7 +124,7 @@ class motorServerClientSocket:
 	# Receive response from server after it was commanded to move a motor
 	def moveMotorResponse(self):
 		# Get first response from RPi
-		timeout = 30.0
+		timeout = 100.0
 		while timeout > 0.0:
 			response = self.receive()
 			if response == "Begin moving motor":
@@ -136,8 +136,12 @@ class motorServerClientSocket:
 			time.sleep(0.05)
 			timeout = timeout-0.05
 
+		if timeout <= 0:
+			print "--Rpi response 1 timeout!"
+			return False
+
 		# Get the second response from RPi
-		timeout = 30.0
+		timeout = 500.0
 		while timeout > 0.0:
 			response = self.receive()
 			if response == "Finished moving motor":
@@ -145,5 +149,9 @@ class motorServerClientSocket:
 				break
 			time.sleep(0.05)
 			timeout = timeout-0.05
+
+		if timeout <= 0:
+			print "--Rpi response 2 timeout!"
+			return False
 
 		return True

@@ -32,7 +32,9 @@ folder = "output" # default scan location
 motor1_value = 100 # Servo Gearbox
 motor2_value = 30  # Linear Actuator - Middle
 motor3_value = 50  # Linear Actuator - Bottom
+
 num_steps = 2500   # max number of steps around the table = 2500
+direction = "counterclockwise" # clockwise / counterclockwise
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -55,7 +57,6 @@ num_steps = 2500   # max number of steps around the table = 2500
 motor1_value = 57
 motor2_value = 100
 motor3_value = 70
-num_steps = 600
 
 
 
@@ -152,7 +153,7 @@ def main():
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	print BLUE+"\nBegin scanning images:"+NC
 	scanProcess = subprocess.Popen([SCAN_SCRIPT, folder], stdin=subprocess.PIPE)
-	time.sleep(2.5) # allow for the program to load. # do not adjust this value
+	time.sleep(3.0) # allow for the program to load. # do not adjust this value
 
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,8 +162,10 @@ def main():
 	# Move stepper motor
 	print BLUE+"Begin moving camera arm:"+NC
 
-	# clientSocket.moveMotorCommand(5, num_steps) # this is the maximum distance we can scan.
-	clientSocket.moveMotorCommand(4, num_steps) # this is the maximum distance we can scan.
+	if direction == "clockwise":
+		clientSocket.moveMotorCommand(4, num_steps) # clockwise
+	elif direction == "counterclockwise":
+		clientSocket.moveMotorCommand(5, num_steps) # counterclockwise
 
 	if clientSocket.moveMotorResponse() == False:
 		print "Error: RPi move motor response."
