@@ -26,10 +26,9 @@ GREEN="\033[0;32m"
 MAGENTA="\033[0;35m"
 NC="\033[0m"
 
+# sudo cd . 
 
 cd /home/workstation5/workplace/source/cameraarm/3DScanner
-
-
 cd scans
 
 argv="$1" # get first argument
@@ -65,7 +64,7 @@ killall XnSensorServer
 
 # Begin scan
 echo -e -n "\n${BLUE}Start camera feed:${NC}"
-/home/workstation5/workplace/source/cameraarm/3DScanner/build/karlScan &
+/home/workstation5/workplace/source/cameraarm/3DScanner/build/karlScan2 &
 scanPID=$!
 
 # wait for command from stdin to stop scanning.

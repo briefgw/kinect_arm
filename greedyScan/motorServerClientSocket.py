@@ -17,9 +17,9 @@ class motorServerClientSocket:
 		# create client socket
 		self.clientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
 
-		self.ServoGearbox_Range = [50,149]   # degrees
-		self.MiddleActuator_Range = [30,140] # degrees
-		self.BottomActuator_Range = [20,140] # degrees
+		self.ServoGearbox_Range = [37,145]   # degrees
+		self.MiddleActuator_Range = [25,135] # degrees
+		self.BottomActuator_Range = [25,140] # degrees
 		self.StepperMotor_Range = [1,2500]   # steps
 
 	def connect(self, ip_address, port):

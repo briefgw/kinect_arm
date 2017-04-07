@@ -45,11 +45,12 @@ class SimpleOpenNIProcessor
 {
   public:
     int waitTime; //Higher = fewer scans per second.
+    int frame_counter;
 
     bool save;
     openni_wrapper::OpenNIDevice::DepthMode mode;
 
-    SimpleOpenNIProcessor (openni_wrapper::OpenNIDevice::DepthMode depth_mode = openni_wrapper::OpenNIDevice::OpenNI_12_bit_depth) : mode (depth_mode) {}
+    SimpleOpenNIProcessor (openni_wrapper::OpenNIDevice::DepthMode depth_mode = openni_wrapper::OpenNIDevice::OpenNI_12_bit_depth) : mode (depth_mode), frame_counter(0) {}
 
     void cloud_cb_ (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
     {
@@ -64,11 +65,14 @@ class SimpleOpenNIProcessor
 
         if (save)
         {
-          std::stringstream ss;
-          ss << std::setprecision (12) << pcl::getTime () * 100 << ".pcd";
+          //std::stringstream ss;
+          //ss << std::setprecision (12) << pcl::getTime () * 100 << ".pcd";
+          //ss << ++frame_counter << ".pcd";
+          char label[255];
+          sprintf(label, "%.4d.pcd", ++frame_counter);
           pcl::PCDWriter w;
-          w.writeBinaryCompressed (ss.str (), *cloud);
-          std::cout << "\033[2;37mWrote point clouds to file: \033[2;36m" << ss.str () << "\033[0m" << std::endl;
+          w.writeBinaryCompressed (label, *cloud);
+          //std::cout << "\033[2;37mWrote point clouds to file: \033[2;36m" << ss.str () << "\033[0m" << std::endl;
         }
       }
     }

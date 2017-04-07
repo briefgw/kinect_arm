@@ -11,3 +11,5 @@ add_definitions(${PCL_DEFINITIONS})
 add_executable (karlScan karlScan.cpp)
 target_link_libraries (karlScan ${PCL_LIBRARIES})
 
+add_executable (karlScan2 karlScan2.cpp)
+target_link_libraries (karlScan2 ${PCL_LIBRARIES})

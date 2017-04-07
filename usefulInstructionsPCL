@@ -8,4 +8,4 @@ pcl_openni_viewer
 
 
 From within a specific scan's folder, view a gif of the scan:
-pcl_pcd_grabber_viewer -dir . -fps 15 -repeat 1
+pcl_pcd_grabber_viewer -dir . -fps 30 -repeat 1
