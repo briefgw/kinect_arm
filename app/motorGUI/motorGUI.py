@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Karl Preisner
 # January 19, 2017
 # GUI class for moving all four motors
