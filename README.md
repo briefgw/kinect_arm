@@ -1,6 +1,7 @@
 # Camera Arm #
+_____
 ### Computers and microcontrollers ###
-* Ubuntu 14.04 machine *
+* Ubuntu 14.04 machine
 * Xbox Kinect
 * Raspberry Pi
 * Arduino Uno
@@ -17,3 +18,5 @@
 * Actobotics Dual Motor Controller
 	* Used with the two Servo City Linear Actuators
 	* https://www.servocity.com/actoboticsr-dual-motor-controller-assembled 
+
+_____
