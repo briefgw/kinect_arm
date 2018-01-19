@@ -1,8 +1,8 @@
-# How to turn system on #
+# How to turn the system on: #
 1. Power on the Ubuntu 14.04 machine and log in. 
 2. Plug in the Raspberry Pi (RPi). Also, make sure that it is connected to the Ubuntu machine via ethernet cable.
 3. Plug in the XBox Kinect. Also, make sure that it is connected to the Ubuntu machine via USB.
-   Note: _Do **not**_ yet power on the power strip that supplies the linear actuators and stepper motor.
+Note: _Do **not**_ yet power on the power strip that supplies the linear actuators and stepper motor.
 4. Open up 2 terminal windows on the Ubuntu machine.
 5. In the first terminal, navigate to `/cameraarm/app/`.
 6. Run `./sshRPi.sh` to ssh into the RPi. You will have to type the password.
@@ -10,7 +10,8 @@
 8. In the second terminal window, navigate to `/cameraarm/app/`. This is where you will run your application (ex greedyScan.py).
 9. Finally, power on the power strip that supplies the linear actuators and stepper motor.
 
-# How to turn system off # 
+# How to turn the system off: # 
+d
 
 # Tips with turning the system on/off #
 ### What not to do: ###
