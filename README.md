@@ -28,7 +28,7 @@ _____
 _____
 # Wiring Guide #
 ### Raspberry Pi + Stepper Motor Driver (M542T)
-![RPi_M542T](https://bitbucket.org/GwuSimhaLab/cameraarm/resources/RPi_M542T.jpg)
+![RPi_M542T](/resources/RPi_M542T.jpg)
 ### Nema23 Stepper Motor + Stepper Motor Driver (M542T)
 ![Nema23_M542T](https://bitbucket.org/GwuSimhaLab/cameraarm/resources/Nema23_M542T.jpg)
 ### Arduino Uno + Dual Motor Controller
