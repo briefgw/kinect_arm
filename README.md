@@ -2,7 +2,7 @@
 ## How to turn the system on:
 1. Power on the Ubuntu 14.04 machine and log in. 
 2. Plug in the Raspberry Pi (RPi). Also, make sure that it is connected to the Ubuntu machine via ethernet cable.
-3. Plug in the XBox Kinect. Also, make sure that it is connected to the Ubuntu machine via USB.
+3. Plug in the XBox Kinect. A green LED on the Kinect should light up. If this light  does not appear, trace the wire and check its connection. Also, make sure that it is connected to the Ubuntu machine via USB.
 
 Note: _Do **not**_ yet power on the power strip that supplies the linear actuators and stepper motor.
 
@@ -16,14 +16,14 @@ Note: _Do **not**_ yet power on the power strip that supplies the linear actuato
 1. Turn off the power strip that supplies the linear actuators and the stepper motor.
 2. On the Ubuntu machine, in the terminal window that is logged into the RPi via ssh
 	1. Kill the motorSever by hitting Ctrl+c.
-	2. Run `./shutdown`. **DOUBLE CHECK THIS! (add script to repo)**
+	2. Run `./shutdown.sh`. **DOUBLE CHECK THIS! (add script to repo)**
 	3. Run `exit` to close the ssh connection. **DOUBLE CHECK THIS!**
 	4. Close the terminal window on the Ubuntu machine.
-	5. Wait 10 seconds, double check that you completed Step 1, then unplug the RPi.
+	5. Wait 10 seconds, double check that you have completed Step 1, then unplug the RPi.
 3. Unplug the XBox Kinect.
 ## Important Tips:
 **1. Do not turn on/off linear actuator power strip without having RPi plugged in.** 
-* The RPi powers the Arduino Uno via its USB connection. The init() method in the Arduino Uno code tells the linear actuators what their default positions should be. If the linear actuators do not have this constant signal from the Arduino Uno, the actuators default to 90 degrees.
+* The RPi powers the Arduino Uno via its USB connection. The Arduino's setup() method (which is called when the Arduino is first powered on) tells the linear actuators what their default positions should be. If the linear actuators do not have this constant signal from the Arduino Uno, the actuators default to 90 degrees.
 * Likewise, if you turn off the RPi (which will also turn off the Arduino Uno) before shutting off the power to the actuators, the actuators will default to 90 degrees because they will not have the signal from the Arduino. 
 
 **2. Follow proper steps for powering off the RPi.**
@@ -31,9 +31,16 @@ Note: _Do **not**_ yet power on the power strip that supplies the linear actuato
 
 -----
 # How to run greedyscan
-1. Turn the system on. *Make sure to follow the steps above.*
+1. Turn the system on. **_Make sure to follow the steps above._**
 2. Navigate to `/cameraarm/app/greedyScan/`.
 3. Run `./greedyScan.py`.
+	* Every time you run greedyScan, a new folder will be created inside of `/cameraarm/collected_data/new_folder` and all scanned image files are stored inside this new folder.
+		* By default, `new_folder` will be named `output`.
+		* Command line argument, `argv[1]` allows you to specify the name of the new folder that you would like to save your scanned images in. 
+			* Again, leaving `argv[1]` blank will default save folder name to `/output`. This will save the files to `./cameraarm/collected_data/output`.
+				* Ex: `./greedyScan.py`
+			* To save files in a folder called `folder1`, make `argv[1]` `folder1`.
+				* Ex: `./greedyScan.py folder1`
 
 -----
 # About:
@@ -100,3 +107,9 @@ _____
 ![Nema23_M542T](/resources/Nema23_M542T.jpg)
 ### Arduino Uno + Dual Motor Controller
 ![Arduino_DualMotorController.jpg](/resources/Arduino_DualMotorController.jpg.jpg)
+# Hardware settings
+### Stepper Motor Driver (M542T)
+(image of the switches)
+also include diagram
+### Dual Motor Controller Jumpers
+(image of the jumpers)
