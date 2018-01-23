@@ -60,14 +60,14 @@ elif [ -d "$argv" ]; then
 	mkdir $directory
 	cd $directory
 fi
-
+`
 # Reset Kinect camera
 echo -e "\n${BLUE}Reset Kinect Camera:${NC}"
 killall XnSensorServer
 
 # Begin scan
 echo -e -n "\n${BLUE}Start camera feed:${NC}"
-/home/workstation5/workplace/source/cameraarm/Kinect_code/build/KinectScan &
+/home/workstation5/workplace/source/cameraarm/src/Kinect_code/build/KinectScan &
 scanPID=$!
 
 # wait for command from stdin to stop scanning.
