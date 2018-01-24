@@ -39,6 +39,11 @@
  #include <sys/socket.h>
  #include <arpa/inet.h>
  #include <netdb.h>
+ #include <unistd.h>
+ #include <sys/types.h>
+ #include <dirent.h>
+ #include <errno.h>
+ #include <iostream>
  /*
  #include<stdio.h>      //printf
  #include<string.h>     //strlen    // Might need these for the socket communication if not working.
@@ -61,6 +66,7 @@
  Mat distanceCoefficients;
  vector<int> markerIds;
  vector< vector<Point2f> > markerCorners;
+ string KinectScan_path = "../../src/Kinect_code/output/";
 
  // Known location of markers in Test Environment
  /* TODO: Update these values with those recorded. */
@@ -544,7 +550,7 @@
              perror("Could not create socket");
          }
 
-         cout<<"Socket created\n";
+         cout<<"Socket created...\n";
      }
      else    {   /* OK , nothing */  }
 
@@ -594,7 +600,7 @@
          return 1;
      }
 
-     cout<<"Connected\n";
+     cout<<"Connected to server...\n";
      return true;
  }
 
@@ -609,7 +615,7 @@
          perror("Send failed : ");
          return false;
      }
-     cout<<"Data send\n";
+     cout<<"Data sent successfully...\n";
 
      return true;
  }
@@ -625,7 +631,7 @@
      //Receive a reply from the server
      if( recv(sock , buffer , sizeof(buffer) , 0) < 0)
      {
-         puts("recv failed");
+         puts("Unable to recieve response from server...");
      }
 
      reply = buffer;
@@ -634,6 +640,8 @@
 
  // Communication with Karl's python code
  int socket_request(string data) {
+   cout<<"Initiating socket for motor movement...";
+
    tcp_client c;
 
    // Connect to host
@@ -643,11 +651,9 @@
    c.send_data(data);
 
    // Recieve and echo reply data
-   cout<<"----------------------------\n\n";
+   cout<<"Server response: ";
    cout<<c.receive(1024);
-   cout<<"\n\n----------------------------\n\n";
-   cout<<"--COMMUNICATION SUCCESSFUL--\n\n";
-   cout<<"----------------------------\n\n";
+   cout<<"\n";
 
    // Motors have been moved
    return 0;
@@ -706,8 +712,14 @@
      //TODO: move( actual_pt, desired_endpoint )
  }
 
+ //
+
  // Move to location
- int move( Vec3d old_pt, Vec3d new_pt ) {
+ // Takes in cartesian coordinates
+ int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
+     // Find polar coordinates for analysis
+     Vec3d new_pt, old_pt;
+
      //TODO: Get differences in theta and move stepper motor
      double theta_diff = new_pt[1] - old_pt[1];
 
@@ -732,6 +744,79 @@
      //TODO: Call calibration function
      error_correct( new_pt );
      return 1;
+ }
+
+ // When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
+ // This function returns the name of the pcl and jpg images to analyze
+ // TODO - NOT EFFICIENT
+ // TODO - returns with extension
+ string obtainMostRecentImage() {
+   string image = "";
+   // Directory path of saved images is saved globally as KinectScan_path
+
+   // List of all images in the folder
+   vector<string> files;
+   string dir = KinectScan_path;
+   dir = "testing/winter_break_photos/";
+
+   DIR *dp;
+   struct dirent *dirp;
+
+   if((dp = opendir(dir.c_str())) == NULL) {
+     cout << "Error(" << errno << ") opening " << dir << endl;
+     return "";
+   }
+
+   while ((dirp = readdir(dp)) != NULL) {
+     files.push_back(string(dirp->d_name));
+   }
+
+   closedir(dp);
+
+   // Based on how it is outputted file should be first or last, assuming last
+   image = files[files.size()];
+   image = image.substr( 0, image.find(".") );
+
+   for (unsigned int i = 0;i < files.size();i++) {
+   cout << i << ": " << files[i] << endl;
+   }
+
+
+   // Alternative
+   system("getImage.sh");   // Find the image
+
+   // Load image name from text file
+
+   // Get substring without extention
+
+   return image;
+ }
+
+ // Public API
+ // Takes in a desired endpoint, determines the current location and returns the string of the name of the image from that pose (jpg and pcl)
+ // user can manually pull kinectActual from global after running new_pose()
+ string new_pose( Vec3d desired_endpoint_cart ) {
+
+   // Find most recent image
+   string mostRecentImage = "";
+
+   // Must concatinate extention for obtainSavedImage
+   mostRecentImage = mostRecentImage + ".jpg";
+
+   // Analyze mostRecentImage
+   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
+
+   //Current location saved globally
+   move(kinectActual, desired_endpoint_cart);
+
+   // Recursively error correct until margin of error
+   error_correct(desired_endpoint_cart);
+
+   // Obtain mostRecentImage again; Updated with current location
+   // TODO
+
+   // Return image name to user to load
+   return mostRecentImage;
  }
 
  //Initial calls within any running instance

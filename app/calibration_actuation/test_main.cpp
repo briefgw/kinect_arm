@@ -1,7 +1,7 @@
 #include "calibration_actuation.h"
 
 int main(int argc, char** argv) {
-
+  /*
   load(argc, argv);
 
   bool showWindow = false;
@@ -10,12 +10,20 @@ int main(int argc, char** argv) {
   }
 
   obtainSavedImage(argv[1], cameraMatrix, distanceCoefficients, showWindow);
+  */
 
+  obtainMostRecentImage();
+
+  /*
   socket_request("4,100");
-  printf("Socket request completed. Safely disconnect\n");
-  usleep(30);
+  printf("Socket request completed.\n");
+  sleep(50);
   socket_request("Disconnect");
+  printf("Server shutdown successfully...\n");
 
+
+  exit(0);
+` */
   /* TRANSLATION TO ACTUAL IMPLIMENTATION */
   // TODO:
     // Create getKinectLocation

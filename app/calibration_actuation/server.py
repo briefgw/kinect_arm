@@ -24,27 +24,28 @@ def Main():
     while True:
         # accepts connections
         (connsocket, address) = serversocket.accept()
-        print("Connection established with: ", address)
+        print "Connection established with: %s" % str(address)
 
         # Read data
         while True:
             data = connsocket.recv(1024)
             if not data: break
-            if data == 'Disconnect': break
-            print("From connected user: ", data.decode()) # Decode from byte to string to desplay for proof of transfer
+            if str(data) == 'Disconnect':
+                print "Request to disconnect acknowledged"
+                break
 
             # Do what needs to be done
-            print("Request: ", data)
+            print "Request: %s" % data
 
 			# Parse for motor number and num_steps
             d_list = data.split(',')
             motor = int(d_list[0])
             num_steps = int(d_list[1])
             # Move stepper motor
-            print BLUE+"Begin moving camera arm:"+NC
-            print "clientSocket.moveMotorCommand(" + motor + ", " + num_steps + ")"
+            print "Begin moving camera arm:"
+            print "clientSocket.moveMotorCommand(%d, %d)" % (motor, num_steps)
 
-            connsocket.send(b'Echo=>' + data) # Rencode the data into the byte stream and send back to client
+            connsocket.send("Motor movement successful") # successful movement
 
         connsocket.close()
 
