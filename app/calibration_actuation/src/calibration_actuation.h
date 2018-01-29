@@ -71,13 +71,19 @@
  // Known location of markers in Test Environment
  /* TODO: Update these values with those recorded. */
  std::vector<Vec3d> translationVectorsToOrigin;
- Vec3d mk0 (0.040f, 0.304f, 0);
- Vec3d mk1 (0.134f, 0.040f, 0);
- Vec3d mk2 (0.148f, 0.204f, 0);
- Vec3d mk3 (0.148f, 0.204f, 0);
+ Vec3d mk0 (0, -0.4318f, 0);
+ Vec3d mk1 ( 0.4318f, 0, 0);
+ Vec3d mk2 (0,  0.4318f, 0);
+ Vec3d mk3 (-0.4318f, 0, 0);
+
+ // All markers have NOT been rotated with respect to the origin
+ Vec3d markerRotation (0, 0, 0);
 
  // Global variable to determine where the Kinect actually is
  Vec3d kinectActual (0, 0, 0);
+ Vec3d kinectRVec   (0, 0, 0);  // In Euler notation NOT rotation Matrix
+ Mat kinectRotationMatrix = Mat::eye(3, 3, CV_64F);
+
 
  /* (III) CREATION OF ARUCO MARKERS */
 
@@ -151,7 +157,6 @@
    cv::calibrateCamera(worldSpaceCornerPoints, checkerboardImageSpacePoints, boardSize, cameraMatrix, distanceCoefficients, rVectors, tVectors);
  }
 
- // TODO: Test if it is working. Cannot without camera calibration
  bool saveCameraCalibration( string name, Mat cameraMatrix, Mat distanceCoefficients ) {
    printf("ENTERS CAMERA CALIBRATION SUCCESSFULLY\n");
 
@@ -310,7 +315,6 @@
    }
  }
 
-
  /* (V) SAVING IMAGES */
  // Currently in it's own function save_photos.cpp with build of ./save [image_name.png]
 
@@ -318,7 +322,7 @@
  int analyzeFrame( vector< vector<Point2f> > markerCorners, vector<Vec3d> rotationVectors, vector<Vec3d> translationVectors, vector<int> markerIds ) {
 
    printf("Successfully enters analyzeFrame\n");
-   // Print out rotationVectors and translationVectors
+   // Print out rotationVectors and translationVectors for found Markers
    for ( int r = 0 ; r < rotationVectors.size() ; r++ ) {
      printf("MarkerId: %d\n", markerIds[r]);
      cout << "[r,p,y] " << rotationVectors.at(r)[0] <<", " << rotationVectors.at(r)[1] <<", " << rotationVectors.at(r)[2] << endl;
@@ -326,20 +330,44 @@
      printf("\n");
    }
 
-   /*
-    * Iteration 1: Apply translationVectors to known translation of first found
-    * to get the actual location of the camera
-    * TODO: Math is NOT correct. How to know if to add vs. subtract? or matrix multiplication?
-    */
-    printf("%i Markers found, determining location of Kinect using Marker %i\n\n", markerIds.size(), markerIds[0] );
-    int firstMarkerFound = markerIds[0];
-    kinectActual[0] = translationVectors.at(0)[0] + translationVectorsToOrigin.at(firstMarkerFound)[0];
-    kinectActual[1] = translationVectors.at(0)[1] + translationVectorsToOrigin.at(firstMarkerFound)[1];
-    kinectActual[2] = translationVectors.at(0)[2] + translationVectorsToOrigin.at(firstMarkerFound)[2];
+   // Get Inverse rVectors
+   // TODO
+   // If no function directly user Rodrigues(rotationVectors[i], tempMat3x3); Manually inverse matrix; Add values for each matrix to kinectRotationMatrix;
+
+   // Get Average of final rotation
+   // divide all values in kinectRotationMatrix by rotationVectors.size()
+   for ( int i = 0 ; i < 3 ; i++ ) {
+     for ( int j = 0 ; j < 3 ; j++ ) {
+       //const double* Mi = kinectRotationMatrix.ptr<double>(i);
+       kinectRotationMatrix.at<double>(i,j) = kinectRotationMatrix.at<double>(i,j) / rotationVectors.size();
+     }
+   }
+   Rodrigues(kinectRotationMatrix, kinectRVec);
+
+   // TODO Print out Final Rotation
+
+   // translationVectors have the marker coordinates system transformed to the kinect
+   // Add each known location to translationVectors
+   for ( int t = 0 ; t < translationVectors.size() ; t++ ) {
+     int currentMarker = markerIds[t];
+     translationVectors.at(currentMarker)[0] = translationVectors.at(currentMarker)[0] + translationVectorsToOrigin.at(currentMarker)[0];
+     translationVectors.at(currentMarker)[1] = translationVectors.at(currentMarker)[1] + translationVectorsToOrigin.at(currentMarker)[1];
+     translationVectors.at(currentMarker)[2] = translationVectors.at(currentMarker)[2] + translationVectorsToOrigin.at(currentMarker)[2];
+   }
+
+    printf("Determining location of Kinect...\nUnaveraged locations determined... \n");
+    // Print out updated translationVectors for found Markers adding in known location
+    for ( int r = 0 ; r < rotationVectors.size() ; r++ ) {
+      printf("Using MarkerId: %d...\t\t", markerIds[r]);
+      cout << "[x,y,z] " << translationVectors.at(r)[0] <<", " << translationVectors.at(r)[1] <<", " << translationVectors.at(r)[2] << endl;
+      printf("\n");
+    }
+
+    // TODO Find average of translationVectors
 
     // Print out results
-    printf("Actual location of the camera wrt origin using MarkerId: %d\n", firstMarkerFound);
-    cout << "[r,p,y] " << rotationVectors.at(0)[0] <<", " << rotationVectors.at(0)[1] <<", " << rotationVectors.at(0)[2] << endl;
+    printf("Actual location of the camera wrt origin\n");
+    cout << "[r,p,y] " << kinectRVec[0] <<", " << kinectRVec[1] <<", " << kinectRVec[2] << endl;
     cout << "[x,y,z] " << kinectActual[0] <<", " << kinectActual[1] <<", " << kinectActual[2] << endl;
     printf("\n");
 
