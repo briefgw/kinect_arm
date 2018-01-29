@@ -28,7 +28,7 @@ from motorServerClient import *
 
 
 # Location of the bash script to run. scan.sh takes an optional argument that specifies the folder for placing scans.
-# scans are placed in CameraArm/collected_data/
+# scans are placed in /cameraarm/collected_data/
 SCAN_SCRIPT = pwd+"/../../src/Kinect_code/scan.sh"
 folder = "output" # default scan location
 
@@ -70,11 +70,16 @@ direction = "counterclockwise" # clockwise / counterclockwise
 # motor3_value = 120
 
 # Tarek's box
-num_steps = 1500
-motor1_value = 79
-motor2_value = 25
-motor3_value = 80
+# num_steps = 1500
+# motor1_value = 79
+# motor2_value = 25
+# motor3_value = 80
 
+# Karl likes this position
+num_steps = 1500
+motor1_value = 57
+motor2_value = 80
+motor3_value = 60
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
