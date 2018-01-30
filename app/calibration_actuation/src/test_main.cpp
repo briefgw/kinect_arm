@@ -1,7 +1,7 @@
 #include "calibration_actuation.h"
 
 int main(int argc, char** argv) {
-  /*
+  /**/
   load(argc, argv);
 
   bool showWindow = false;
@@ -10,9 +10,13 @@ int main(int argc, char** argv) {
   }
 
   obtainSavedImage(argv[1], cameraMatrix, distanceCoefficients, showWindow);
-  */
+  /**/
 
-  obtainMostRecentImage();
+  // obtainMostRecentImage();
+  // Vec3d testInput (0, 0, 0);
+  //
+  // string file = new_pose( testInput );
+  // cout << file << endl;
 
   /*
   socket_request("4,100");

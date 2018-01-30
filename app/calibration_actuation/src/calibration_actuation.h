@@ -66,7 +66,7 @@
  Mat distanceCoefficients;
  vector<int> markerIds;
  vector< vector<Point2f> > markerCorners;
- string KinectScan_path = "../../src/Kinect_code/output/";
+ string KinectScan_path = "../../../src/Kinect_code/output/";
 
  // Known location of markers in Test Environment
  /* TODO: Update these values with those recorded. */
@@ -321,18 +321,38 @@
  /* (VI) CALIBRATION ANALYSIS */
  int analyzeFrame( vector< vector<Point2f> > markerCorners, vector<Vec3d> rotationVectors, vector<Vec3d> translationVectors, vector<int> markerIds ) {
 
-   printf("Successfully enters analyzeFrame\n");
+   printf("\nLocation of Kinect for found markers...\n");
    // Print out rotationVectors and translationVectors for found Markers
    for ( int r = 0 ; r < rotationVectors.size() ; r++ ) {
-     printf("MarkerId: %d\n", markerIds[r]);
-     cout << "[r,p,y] " << rotationVectors.at(r)[0] <<", " << rotationVectors.at(r)[1] <<", " << rotationVectors.at(r)[2] << endl;
-     cout << "[x,y,z] " << translationVectors.at(r)[0] <<", " << translationVectors.at(r)[1] <<", " << translationVectors.at(r)[2] << endl;
+     printf("\tMarkerId: %d\n", markerIds[r]);
+     cout << "\t[r,p,y] " << rotationVectors.at(r)[0] <<", " << rotationVectors.at(r)[1] <<", " << rotationVectors.at(r)[2] << endl;
+     cout << "\t[x,y,z] " << translationVectors.at(r)[0] <<", " << translationVectors.at(r)[1] <<", " << translationVectors.at(r)[2] << endl;
      printf("\n");
    }
 
-   // Get Inverse rVectors
-   // TODO
-   // If no function directly user Rodrigues(rotationVectors[i], tempMat3x3); Manually inverse matrix; Add values for each matrix to kinectRotationMatrix;
+  //  printf("Stored values for markers...\n");
+  //  for ( int r = 0 ; r < translationVectorsToOrigin.size() ; r++ ) {
+  //    printf("MarkerId: %d\n", r);
+  //    cout << "[x,y,z] " << translationVectorsToOrigin.at(r)[0] <<", " << translationVectorsToOrigin.at(r)[1] <<", " << translationVectorsToOrigin.at(r)[2] << endl;
+  //    printf("\n");
+  //  }
+
+   Mat tempMat3x3 = Mat::eye(3, 3, CV_64F);
+
+   /* TODO: Find average rotation
+
+   // Add values for each marker to kinectRotationMatrix;
+   for ( int i = 0 ; i < rotationVectors.size() ; i++ ) {
+     printf("Gets here\n");
+     Rodrigues(rotationVectors[i], tempMat3x3);
+     //transpose(tempMat3x3, tempMat3x3Inverse);
+     for ( int j = 0 ; j < 3 ; j++ ) {
+       for ( int k = 0 ; k < 3 ; k++ ) {
+         //const double* Mi = kinectRotationMatrix.ptr<double>(i);
+         kinectRotationMatrix.at<double>(j,k) = kinectRotationMatrix.at<double>(j,k) + tempMat3x3.at<double>(j,k);
+       }
+     }
+   }
 
    // Get Average of final rotation
    // divide all values in kinectRotationMatrix by rotationVectors.size()
@@ -342,6 +362,9 @@
        kinectRotationMatrix.at<double>(i,j) = kinectRotationMatrix.at<double>(i,j) / rotationVectors.size();
      }
    }
+   */
+
+   Rodrigues(rotationVectors[0], kinectRotationMatrix); // TODO: Remove when average found
    Rodrigues(kinectRotationMatrix, kinectRVec);
 
    // TODO Print out Final Rotation
@@ -350,25 +373,35 @@
    // Add each known location to translationVectors
    for ( int t = 0 ; t < translationVectors.size() ; t++ ) {
      int currentMarker = markerIds[t];
-     translationVectors.at(currentMarker)[0] = translationVectors.at(currentMarker)[0] + translationVectorsToOrigin.at(currentMarker)[0];
-     translationVectors.at(currentMarker)[1] = translationVectors.at(currentMarker)[1] + translationVectorsToOrigin.at(currentMarker)[1];
-     translationVectors.at(currentMarker)[2] = translationVectors.at(currentMarker)[2] + translationVectorsToOrigin.at(currentMarker)[2];
+     translationVectorsToOrigin.at(currentMarker)[0];
+     translationVectors.at(t)[0] = translationVectors.at(t)[0] + translationVectorsToOrigin.at(currentMarker)[0];
+     translationVectors.at(t)[1] = translationVectors.at(t)[1] + translationVectorsToOrigin.at(currentMarker)[1];
+     translationVectors.at(t)[2] = translationVectors.at(t)[2] + translationVectorsToOrigin.at(currentMarker)[2];
+
+     // Add to kinectActual in the process
+     kinectActual[0] += translationVectors.at(t)[0];
+     kinectActual[1] += translationVectors.at(t)[1];
+     kinectActual[2] += translationVectors.at(t)[2];
    }
 
-    printf("Determining location of Kinect...\nUnaveraged locations determined... \n");
+    printf("Determining location of Kinect...\nUnaveraged locations determined...\n");
     // Print out updated translationVectors for found Markers adding in known location
     for ( int r = 0 ; r < rotationVectors.size() ; r++ ) {
-      printf("Using MarkerId: %d...\t\t", markerIds[r]);
-      cout << "[x,y,z] " << translationVectors.at(r)[0] <<", " << translationVectors.at(r)[1] <<", " << translationVectors.at(r)[2] << endl;
+      printf("\tUsing MarkerId: %d...\n", markerIds[r]);
+      cout << "\t[x,y,z] " << translationVectors.at(r)[0] <<", " << translationVectors.at(r)[1] <<", " << translationVectors.at(r)[2] << endl;
       printf("\n");
     }
 
-    // TODO Find average of translationVectors
+    // Find average of translationVectors
+    // Sum of values in all translationVectors done above
+    kinectActual[0] = kinectActual[0] / translationVectors.size();
+    kinectActual[1] = kinectActual[1] / translationVectors.size();
+    kinectActual[2] = kinectActual[2] / translationVectors.size();
 
     // Print out results
     printf("Actual location of the camera wrt origin\n");
-    cout << "[r,p,y] " << kinectRVec[0] <<", " << kinectRVec[1] <<", " << kinectRVec[2] << endl;
-    cout << "[x,y,z] " << kinectActual[0] <<", " << kinectActual[1] <<", " << kinectActual[2] << endl;
+    cout << "\t[r,p,y] " << kinectRVec[0] <<", " << kinectRVec[1] <<", " << kinectRVec[2] << endl;
+    cout << "\t[x,y,z] " << kinectActual[0] <<", " << kinectActual[1] <<", " << kinectActual[2] << endl;
     printf("\n");
 
     //Print out kinectActual to ensure correct
@@ -395,11 +428,13 @@
        aruco::getPredefinedDictionary( 0 );
 
    // Opening Image
-   printf("Attempting to open %s\n", name.c_str());
-   string projectPath = "/home/tjmagnan/sd-18-hatata_magnan/calibration_actuation";
+   //string projectPath = "/home/tjmagnan/sd-18-hatata_magnan/calibration_actuation";
+   string projectPath = "../../../collected_data/";
    string fullPath = projectPath + name.c_str();
+   printf("Attempting to open %s\n%s\n", name.c_str(), fullPath);
    try {
      frame = imread(fullPath);
+     // frame = imread(name.c_str());
    }
    catch (runtime_error& ex) {
        fprintf(stderr, "Exception importing image: %s\n", ex.what());
@@ -776,46 +811,36 @@
 
  // When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
  // This function returns the name of the pcl and jpg images to analyze
- // TODO - NOT EFFICIENT
- // TODO - returns with extension
  string obtainMostRecentImage() {
    string image = "";
    // Directory path of saved images is saved globally as KinectScan_path
 
    // List of all images in the folder
    vector<string> files;
-   string dir = KinectScan_path;
-   dir = "testing/winter_break_photos/";
-
-   DIR *dp;
-   struct dirent *dirp;
-
-   if((dp = opendir(dir.c_str())) == NULL) {
-     cout << "Error(" << errno << ") opening " << dir << endl;
-     return "";
-   }
-
-   while ((dirp = readdir(dp)) != NULL) {
-     files.push_back(string(dirp->d_name));
-   }
-
-   closedir(dp);
-
-   // Based on how it is outputted file should be first or last, assuming last
-   image = files[files.size()];
-   image = image.substr( 0, image.find(".") );
-
-   for (unsigned int i = 0;i < files.size();i++) {
-   cout << i << ": " << files[i] << endl;
-   }
-
+   string dir = KinectScan_path;              //Not currently in use
+   dir = "../testing/winter_break_photos/";
 
    // Alternative
-   system("getImage.sh");   // Find the image
+   system("./getImage.sh");   // Find the image
 
    // Load image name from text file
+   ifstream inFile;
+
+   inFile.open("../build/mostRecent.txt");
+
+   if (!inFile) {
+      cout << "Unable to open file";
+      exit(1); // terminate with error
+   }
+
+   getline(inFile, image);
+
+   inFile.close();
 
    // Get substring without extention
+   image = image.substr( 0, image.length() - 4 );
+   //image = image.substr( 0, image.find(".") );
+   cout << "Most recent image taken: " << image << endl;
 
    return image;
  }
@@ -826,13 +851,13 @@
  string new_pose( Vec3d desired_endpoint_cart ) {
 
    // Find most recent image
-   string mostRecentImage = "";
+   string mostRecentImage = obtainMostRecentImage();
 
    // Must concatinate extention for obtainSavedImage
-   mostRecentImage = mostRecentImage + ".jpg";
+   mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
-   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
+   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
 
    //Current location saved globally
    move(kinectActual, desired_endpoint_cart);
@@ -841,7 +866,9 @@
    error_correct(desired_endpoint_cart);
 
    // Obtain mostRecentImage again; Updated with current location
-   // TODO
+   mostRecentImage = obtainMostRecentImage();
+
+   //TODO: Get .txt file information that GUI needs for analysis
 
    // Return image name to user to load
    return mostRecentImage;

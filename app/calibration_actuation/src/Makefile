@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -g -w
 SRCS = test_main.cpp
-PROG = ../testing/testMake
+PROG = load
 
 OPENCV = `pkg-config opencv --cflags --libs`
 LIBS = $(OPENCV)
