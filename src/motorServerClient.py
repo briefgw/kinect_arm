@@ -11,7 +11,7 @@ import socket
 import time
 
 
-class motorServerClientSocket:
+class motorServerClient:
 
 	def __init__(self): #constructor
 		# create client socket

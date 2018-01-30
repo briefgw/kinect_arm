@@ -34,369 +34,124 @@
  * Author: Suat Gedikli (gedikli@willowgarage.com)
  */
 
-#define MEASURE_FUNCTION_TIME
-#include <pcl/common/time.h> //fps calculations
-#include <pcl/io/openni_grabber.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/visualization/boost.h>
-#include <pcl/visualization/image_viewer.h>
-#include <pcl/console/print.h>
-#include <pcl/console/parse.h>
-#include <pcl/console/time.h>
-
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/io/png_io.h>
+#include <pcl/io/openni_grabber.h>
+#include <pcl/common/time.h>
+#include <pcl/console/parse.h>
 
-#define SHOW_FPS 1
-#if SHOW_FPS
-#define FPS_CALC(_WHAT_) \
-do \
-{ \
-    static unsigned count = 0;\
-    static double last = pcl::getTime ();\
-    double now = pcl::getTime (); \
-    ++count; \
-    if (now - last >= 1.0) \
-    { \
-      std::cout << "Average framerate("<< _WHAT_ << "): " << double(count)/double(now - last) << " Hz" <<  std::endl; \
-      count = 0; \
-      last = now; \
-    } \
-}while(false)
-#else
-#define FPS_CALC(_WHAT_) \
-do \
-{ \
-}while(false)
-#endif
-
-void
-printHelp (int, char **argv)
-{
-  using pcl::console::print_error;
-  using pcl::console::print_info;
-
-  print_error ("Syntax is: %s [((<device_id> | <path-to-oni-file>) [-depthmode <mode>] [-imagemode <mode>] [-xyz] | -l [<device_id>]| -h | --help)]\n", argv [0]);
-  print_info ("%s -h | --help : shows this help\n", argv [0]);
-  print_info ("%s -xyz : use only XYZ values and ignore RGB components (this flag is required for use with ASUS Xtion Pro) \n", argv [0]);
-  print_info ("%s -l : list all available devices\n", argv [0]);
-  print_info ("%s -l <device-id> :list all available modes for specified device\n", argv [0]);
-  print_info ("\t\t<device_id> may be \"#1\", \"#2\", ... for the first, second etc device in the list\n");
-#ifndef _WIN32
-  print_info ("\t\t                   bus@address for the device connected to a specific usb-bus / address combination\n");
-  print_info ("\t\t                   <serial-number>\n");
-#endif
-  print_info ("\n\nexamples:\n");
-  print_info ("%s \"#1\"\n", argv [0]);
-  print_info ("\t\t uses the first device.\n");
-  print_info ("%s  \"./temp/test.oni\"\n", argv [0]);
-  print_info ("\t\t uses the oni-player device to play back oni file given by path.\n");
-  print_info ("%s -l\n", argv [0]);
-  print_info ("\t\t list all available devices.\n");
-  print_info ("%s -l \"#2\"\n", argv [0]);
-  print_info ("\t\t list all available modes for the second device.\n");
-  #ifndef _WIN32
-  print_info ("%s A00361800903049A\n", argv [0]);
-  print_info ("\t\t uses the device with the serial number \'A00361800903049A\'.\n");
-  print_info ("%s 1@16\n", argv [0]);
-  print_info ("\t\t uses the device on address 16 at USB bus 1.\n");
-  #endif
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename PointType>
-class OpenNIViewer
+class SimpleOpenNIProcessor
 {
   public:
-    typedef pcl::PointCloud<PointType> Cloud;
-    typedef typename Cloud::ConstPtr CloudConstPtr;
+    int waitTime; //Higher = fewer scans per second.
+    int frame_counter;
 
-    OpenNIViewer (pcl::Grabber& grabber)
-      : cloud_viewer_ (new pcl::visualization::PCLVisualizer ("PCL OpenNI cloud"))
-      , image_viewer_ ()
-      , grabber_ (grabber)
-      , frame_counter(0) //for writing pcds
-      , rgb_data_ (0), rgb_data_size_ (0)
-    {
-    }
+    bool save;
+    openni_wrapper::OpenNIDevice::DepthMode mode;
 
-    void
-    cloud_callback (const CloudConstPtr& cloud)
-    {
-      FPS_CALC ("cloud callback");
-      boost::mutex::scoped_lock lock (cloud_mutex_);
-      cloud_ = cloud;
-    }
+    SimpleOpenNIProcessor (openni_wrapper::OpenNIDevice::DepthMode depth_mode = openni_wrapper::OpenNIDevice::OpenNI_12_bit_depth) : mode (depth_mode), frame_counter(0) {}
 
-    void
-    image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
+    void cloud_cb_ (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud)
     {
-      FPS_CALC ("image callback");
-      boost::mutex::scoped_lock lock (image_mutex_);
-      image_ = image;
-      
-      if (image->getEncoding () != openni_wrapper::Image::RGB)
+      static unsigned count = 0;
+      static double last = pcl::getTime ();
+      if (++count == waitTime)
       {
-        if (rgb_data_size_ < image->getWidth () * image->getHeight ())
+        double now = pcl::getTime ();
+        // std::cout << "distance of center pixel :" << cloud->points [(cloud->width >> 1) * (cloud->height + 1)].z << " mm. Average framerate: " << double(count)/double(now - last) << " Hz" <<  std::endl;
+        count = 0;
+        last = now;
+
+        if (save)
         {
-          if (rgb_data_)
-            delete [] rgb_data_;
-          rgb_data_size_ = image->getWidth () * image->getHeight ();
-          rgb_data_ = new unsigned char [rgb_data_size_ * 3];
-        }
-        image_->fillRGB (image_->getWidth (), image_->getHeight (), rgb_data_);
-      }
-    }
-    
-    void 
-    keyboard_callback (const pcl::visualization::KeyboardEvent& event, void*)
-    {
-      if (event.getKeyCode ())
-        cout << "the key \'" << event.getKeyCode() << "\' (" << event.getKeyCode() << ") was";
-      else
-        cout << "the special key \'" << event.getKeySym() << "\' was";
-      if (event.keyDown())
-        cout << " pressed" << endl;
-      else
-        cout << " released" << endl;
-    }
-    
-    void 
-    mouse_callback (const pcl::visualization::MouseEvent& mouse_event, void*)
-    {
-      if (mouse_event.getType() == pcl::visualization::MouseEvent::MouseButtonPress && mouse_event.getButton() == pcl::visualization::MouseEvent::LeftButton)
-      {
-        cout << "left button pressed @ " << mouse_event.getX () << " , " << mouse_event.getY () << endl;
-      }
-    }
-
-    /**
-     * @brief starts the main loop
-     */
-    void
-    run ()
-    {
-      cloud_viewer_->registerMouseCallback (&OpenNIViewer::mouse_callback, *this);
-      cloud_viewer_->registerKeyboardCallback(&OpenNIViewer::keyboard_callback, *this);
-      boost::function<void (const CloudConstPtr&) > cloud_cb = boost::bind (&OpenNIViewer::cloud_callback, this, _1);
-      boost::signals2::connection cloud_connection = grabber_.registerCallback (cloud_cb);
-      
-      boost::signals2::connection image_connection;
-      if (grabber_.providesCallback<void (const boost::shared_ptr<openni_wrapper::Image>&)>())
-      {
-        image_viewer_.reset (new pcl::visualization::ImageViewer ("PCL OpenNI image"));
-        image_viewer_->registerMouseCallback (&OpenNIViewer::mouse_callback, *this);
-        image_viewer_->registerKeyboardCallback(&OpenNIViewer::keyboard_callback, *this);
-        boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&) > image_cb = boost::bind (&OpenNIViewer::image_callback, this, _1);
-        image_connection = grabber_.registerCallback (image_cb);
-      }
-      
-      bool image_init = false, cloud_init = false;
-      
-      grabber_.start ();
-
-      double t = pcl::getTime();
-
-      while (!cloud_viewer_->wasStopped () && (image_viewer_ && !image_viewer_->wasStopped ()))
-      {
-        boost::shared_ptr<openni_wrapper::Image> image;
-        CloudConstPtr cloud;
-
-        cloud_viewer_->spinOnce ();
-
-        // See if we can get a cloud
-        if (cloud_mutex_.try_lock ())
-        {
-          cloud_.swap (cloud);
-          cloud_mutex_.unlock ();
-        }
-
-        if (cloud)
-        {
-          // Saving the frame
-          cout << "Saving the frame:" << endl;
+          //std::stringstream ss;
+          //ss << std::setprecision (12) << pcl::getTime () * 100 << ".pcd";
+          //ss << ++frame_counter << ".pcd";
           char label[255];
-          sprintf(label, "%.4d_%.4f.pcd", frame_counter, pcl::getTime() - t);
+          sprintf(label, "%.4d.pcd", ++frame_counter);
           pcl::PCDWriter w;
           w.writeBinaryCompressed (label, *cloud);
-          cout << "--time elapsed = " << pcl::getTime() - t << endl;
-
-          /// IF WE WANT TO DRAW THE CLOUD
-/*
-          FPS_CALC ("drawing cloud");
-          if (!cloud_init)
-          {
-            cloud_viewer_->setPosition (0, 0);
-            cloud_viewer_->setSize (cloud->width, cloud->height);
-            cloud_init = !cloud_init;
-          }
-
-          if (!cloud_viewer_->updatePointCloud (cloud, "OpenNICloud"))
-          {
-            cloud_viewer_->addPointCloud (cloud, "OpenNICloud");
-            cloud_viewer_->resetCameraViewpoint ("OpenNICloud");
-          }   
-*/
+          //std::cout << "\033[2;37mWrote point clouds to file: \033[2;36m" << ss.str () << "\033[0m" << std::endl;
         }
-
-        // See if we can get an image
-        if (image_mutex_.try_lock ())
-        {
-          image_.swap (image);
-          image_mutex_.unlock ();
-        }
-
-        if (image)
-        {
-          // Saving the image
-          cout << "Saving the image:" << endl;
-          char label[255];
-          sprintf(label, "%.4d_%.4f.png", frame_counter, pcl::getTime() - t);
-          //pcl::PCDWriter w;
-          //w.writeBinaryCompressed (label, *cloud);
-          pcl::io::saveRgbPNGFile(label, rgb_data_, image->getWidth (), image->getHeight ());
-          
-          cout << "--time elapsed = " << pcl::getTime() - t << endl;
-          
-          ///IF WE WANT TO SEE THE IMAGE
-/*
-          if (!image_init && cloud && cloud->width != 0)
-          {
-            image_viewer_->setPosition (cloud->width, 0);
-            image_viewer_->setSize (cloud->width, cloud->height);
-            image_init = !image_init;
-          }
-
-          if (image->getEncoding() == openni_wrapper::Image::RGB)
-            image_viewer_->addRGBImage (image->getMetaData ().Data (), image->getWidth (), image->getHeight ());
-          else
-            image_viewer_->addRGBImage (rgb_data_, image->getWidth (), image->getHeight ());
-          image_viewer_->spinOnce ();
-*/
-        }
-        frame_counter++;
-        //t = pcl::getTime(); // update t
       }
-
-      grabber_.stop ();
-      
-      cloud_connection.disconnect ();
-      image_connection.disconnect ();
-      if (rgb_data_)
-        delete[] rgb_data_;
     }
-    
-    boost::shared_ptr<pcl::visualization::PCLVisualizer> cloud_viewer_;
-    boost::shared_ptr<pcl::visualization::ImageViewer> image_viewer_;
-    
-    pcl::Grabber& grabber_;
-    boost::mutex cloud_mutex_;
-    boost::mutex image_mutex_;
-    
-    CloudConstPtr cloud_;
-    boost::shared_ptr<openni_wrapper::Image> image_;
-    unsigned char* rgb_data_;
-    unsigned rgb_data_size_;
 
-    //Karl for writing pcds
-    int frame_counter;
+    // void
+    // image_callback (const boost::shared_ptr<openni_wrapper::Image>& image)
+    // {
+    //   static unsigned count = 0;
+    //   if (++count == waitTime)
+    //   {
+    //     image_ = image;
+        
+    //     if (image->getEncoding () != openni_wrapper::Image::RGB)
+    //     {
+    //       if (rgb_data_size_ < image->getWidth () * image->getHeight ())
+    //       {
+    //         if (rgb_data_)
+    //           delete [] rgb_data_;
+    //         rgb_data_size_ = image->getWidth () * image->getHeight ();
+    //         rgb_data_ = new unsigned char [rgb_data_size_ * 3];
+    //       }
+    //       image_->fillRGB (image_->getWidth (), image_->getHeight (), rgb_data_);
+    //     }
+
+    //     if (save)
+    //     {
+    //       char label[255];
+    //       sprintf(label, "%.4d.png", ++frame_counter);
+    //       pcl::PCDWriter w;
+    //       pcl::io::saveRgbPNGFile(label, rgb_data_, image->getWidth (), image->getHeight ());
+    //     } 
+    //   }
+    // }
+
+
+    void imageDepthImageCallback (const boost::shared_ptr<openni_wrapper::Image>&, const boost::shared_ptr<openni_wrapper::DepthImage>& d_img, float constant)
+    {
+      static unsigned count = 0;
+      static double last = pcl::getTime ();
+      if (++count == waitTime)
+      {
+        double now = pcl::getTime ();
+        // std::cout << "got synchronized image x depth-image with constant factor: " << constant << ". Average framerate: " << double(count)/double(now - last) << " Hz" <<  std::endl;
+        // std::cout << "Depth baseline: " << d_img->getBaseline () << " and focal length: " << d_img->getFocalLength () << std::endl;
+        count = 0;
+        last = now;
+      }
+    }
+
+    // This is where the action is.
+    void run ()
+    {
+      save = true;
+      waitTime = 1; //Higher = fewer scans per second.
+      
+      // std::cout << "<Ctrl+C> to stop scanning." << std::endl;
+      std::cout << std::endl;
+      
+      //----------------------Dont worry about this stuff -----------------------------
+      pcl::OpenNIGrabber interface; // create a new grabber for OpenNI devices
+      interface.getDevice ()->setDepthOutputFormat (mode); // Set the depth output format
+      boost::function<void (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&)> f = boost::bind (&SimpleOpenNIProcessor::cloud_cb_, this, _1); // make callback function from member function
+      boost::signals2::connection c = interface.registerCallback (f); // connect callback function for desired signal. In this case its a point cloud with color values
+      boost::function<void (const boost::shared_ptr<openni_wrapper::Image>&, const boost::shared_ptr<openni_wrapper::DepthImage>&, float constant)> f2 = boost::bind (&SimpleOpenNIProcessor::imageDepthImageCallback, this, _1, _2, _3); // make callback function from member function
+      boost::signals2::connection c2 = interface.registerCallback (f2); // connect callback function for desired signal. In this case its a point cloud with color values
+      //--------------------------------------------------------------------------------
+
+      // start receiving point clouds
+      interface.start ();
+      while(true){}
+    }
 };
 
-// Create the PCLVisualizer object
-boost::shared_ptr<pcl::visualization::PCLVisualizer> cld;
-boost::shared_ptr<pcl::visualization::ImageViewer> img;
-
-/* ---[ */
-int
-main (int argc, char** argv)
+int main (int argc, char **argv)
 {
-  std::string device_id("");
-  pcl::OpenNIGrabber::Mode depth_mode = pcl::OpenNIGrabber::OpenNI_Default_Mode;
-  pcl::OpenNIGrabber::Mode image_mode = pcl::OpenNIGrabber::OpenNI_Default_Mode;
-  bool xyz = false;
-  
-  if (argc >= 2)
-  {
-    device_id = argv[1];
-    if (device_id == "--help" || device_id == "-h")
-    {
-      printHelp(argc, argv);
-      return 0;
-    }
-    else if (device_id == "-l")
-    {
-      if (argc >= 3)
-      {
-        pcl::OpenNIGrabber grabber(argv[2]);
-        boost::shared_ptr<openni_wrapper::OpenNIDevice> device = grabber.getDevice();
-        cout << "Supported depth modes for device: " << device->getVendorName() << " , " << device->getProductName() << endl;
-        std::vector<std::pair<int, XnMapOutputMode > > modes = grabber.getAvailableDepthModes();
-        for (std::vector<std::pair<int, XnMapOutputMode > >::const_iterator it = modes.begin(); it != modes.end(); ++it)
-        {
-          cout << it->first << " = " << it->second.nXRes << " x " << it->second.nYRes << " @ " << it->second.nFPS << endl;
-        }
+  int mode = openni_wrapper::OpenNIDevice::OpenNI_12_bit_depth;
+  pcl::console::parse_argument (argc, argv, "-mode", mode);
 
-        if (device->hasImageStream ())
-        {
-          cout << endl << "Supported image modes for device: " << device->getVendorName() << " , " << device->getProductName() << endl;
-          modes = grabber.getAvailableImageModes();
-          for (std::vector<std::pair<int, XnMapOutputMode > >::const_iterator it = modes.begin(); it != modes.end(); ++it)
-          {
-            cout << it->first << " = " << it->second.nXRes << " x " << it->second.nYRes << " @ " << it->second.nFPS << endl;
-          }
-        }
-      }
-      else
-      {
-        openni_wrapper::OpenNIDriver& driver = openni_wrapper::OpenNIDriver::getInstance();
-        if (driver.getNumberDevices() > 0)
-        {
-          for (unsigned deviceIdx = 0; deviceIdx < driver.getNumberDevices(); ++deviceIdx)
-          {
-            cout << "Device: " << deviceIdx + 1 << ", vendor: " << driver.getVendorName(deviceIdx) << ", product: " << driver.getProductName(deviceIdx)
-              << ", connected: " << driver.getBus(deviceIdx) << " @ " << driver.getAddress(deviceIdx) << ", serial number: \'" << driver.getSerialNumber(deviceIdx) << "\'" << endl;
-          }
-
-        }
-        else
-          cout << "No devices connected." << endl;
-        
-        cout <<"Virtual Devices available: ONI player" << endl;
-      }
-      return 0;
-    }
-  }
-  else
-  {
-    openni_wrapper::OpenNIDriver& driver = openni_wrapper::OpenNIDriver::getInstance();
-    if (driver.getNumberDevices() > 0)
-      cout << "Device Id not set, using first device." << endl;
-  }
-  
-  unsigned mode;
-  if (pcl::console::parse(argc, argv, "-depthmode", mode) != -1)
-    depth_mode = pcl::OpenNIGrabber::Mode (mode);
-
-  if (pcl::console::parse(argc, argv, "-imagemode", mode) != -1)
-    image_mode = pcl::OpenNIGrabber::Mode (mode);
-  
-  if (pcl::console::find_argument (argc, argv, "-xyz") != -1)
-    xyz = true;
-  
-  pcl::OpenNIGrabber grabber (device_id, depth_mode, image_mode);
-  
-  if (xyz || !grabber.providesCallback<pcl::OpenNIGrabber::sig_cb_openni_point_cloud_rgb> ())
-  {
-    OpenNIViewer<pcl::PointXYZ> openni_viewer (grabber);
-    openni_viewer.run ();
-  }
-  else
-  {
-    OpenNIViewer<pcl::PointXYZRGBA> openni_viewer (grabber);
-    openni_viewer.run ();
-  }
-  
+  SimpleOpenNIProcessor v (static_cast<openni_wrapper::OpenNIDevice::DepthMode> (mode));
+  v.run ();
   return (0);
 }

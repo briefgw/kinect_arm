@@ -9,17 +9,17 @@
 #    2. This script runs KinectScan in the proper location.
 
 # This script runs the Kinect scanning program and places all scanned 
-# images in ./scans/folder1
+# images in /cameraarm/collected_data/folder1
 
-# If no argument, all scanned images will be placed in ./scans/output.
-# All contents of this folder will be overwritten.
+# If no argument, all scanned images will be placed in /cameraarm/collected_data/output.
+# All contents of this /output will be overwritten.
 
 # If argument, scanned items will be placed in a directory with that title.
 # If this folder exists, it will be overwritten.
 
-# The program karlScan will run in a background process. 
+# The program KinectScan will run in a background process. 
 # This script waits for stdin == "Stop scanning" 
-# Once it receives that input, it kills the child process. 
+# Once it receives that input, it kills the process (KinectScan). 
 
 # example execution:
 #    ./scan.sh folder1
@@ -30,8 +30,6 @@ BLUE="\033[0;34m"
 GREEN="\033[0;32m"
 MAGENTA="\033[0;35m"
 NC="\033[0m"
-
-# sudo cd . 
 
 # move to location where we will store files from scan
 cd /home/workstation5/workplace/source/cameraarm/collected_data
@@ -62,14 +60,14 @@ elif [ -d "$argv" ]; then
 	mkdir $directory
 	cd $directory
 fi
-
+`
 # Reset Kinect camera
 echo -e "\n${BLUE}Reset Kinect Camera:${NC}"
 killall XnSensorServer
 
 # Begin scan
 echo -e -n "\n${BLUE}Start camera feed:${NC}"
-/home/workstation5/workplace/source/cameraarm/Kinect_code/build/KinectScan &
+/home/workstation5/workplace/source/cameraarm/src/Kinect_code/build/KinectScan &
 scanPID=$!
 
 # wait for command from stdin to stop scanning.
@@ -97,4 +95,4 @@ else
 fi
 
 echo -e "${BLUE}Finished scanning images.${NC}"
-echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
+echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/collected_data/${MAGENTA}$directory'${NC}"
