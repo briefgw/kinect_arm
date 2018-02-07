@@ -727,9 +727,9 @@
  // Conversion functions
  Vec3d cartesian_to_polar( Vec3d cartesian ) {
    double r, theta = 0;
-   Vec3d polar ( r, theta, cartesian[2] );
    r = sqrt( cartesian[0]*cartesian[0] + cartesian[1]*cartesian[1] );
    theta = atan( cartesian[1]/cartesian[0] );
+   Vec3d polar ( r, theta, cartesian[2] );
 
    return polar;
  }
@@ -740,6 +740,28 @@
    y = polar[0] * sin( polar[1] );
    Vec3d cartesian ( x, y, cartesian[2] );
    return cartesian;
+ }
+
+ bool validLocation( Vec3d originalPolar ) {
+
+   // TODO: Save values as constants above
+
+   // format r, theta, z
+
+   // Ensure theta is valid TODO: Correct max angle
+   if ( theta < 0 || theta > 330 ) { return false; }
+
+   // Ensure r is valid
+   if ( r < .1 ) { return false; }
+
+   // Alter (r, theta, z)
+
+   // else if (  ) {  }
+
+   else {
+     return true;
+   }
+
  }
 
  // Basic functions when location isn't specified
