@@ -1,24 +1,22 @@
 Determining if the pthread_create exist failed with the following output:
-Change Dir: /home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp
+Change Dir: /home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_fa0fe/fast"
-/usr/bin/make -f CMakeFiles/cmTC_fa0fe.dir/build.make CMakeFiles/cmTC_fa0fe.dir/build
-make[1]: Entering directory '/home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_fa0fe.dir/CheckSymbolExists.c.o
-/usr/bin/cc     -o CMakeFiles/cmTC_fa0fe.dir/CheckSymbolExists.c.o   -c /home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_fa0fe
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fa0fe.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTC_fa0fe.dir/CheckSymbolExists.c.o  -o cmTC_fa0fe -rdynamic 
-CMakeFiles/cmTC_fa0fe.dir/CheckSymbolExists.c.o: In function `main':
+Run Build Command:"/usr/bin/make" "cmTC_07f6e/fast"
+/usr/bin/make -f CMakeFiles/cmTC_07f6e.dir/build.make CMakeFiles/cmTC_07f6e.dir/build
+make[1]: Entering directory `/home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_07f6e.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_07f6e.dir/CheckSymbolExists.c.o   -c /home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_07f6e
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_07f6e.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_07f6e.dir/CheckSymbolExists.c.o  -o cmTC_07f6e 
+CMakeFiles/cmTC_07f6e.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_fa0fe.dir/build.make:97: recipe for target 'cmTC_fa0fe' failed
-make[1]: *** [cmTC_fa0fe] Error 1
-make[1]: Leaving directory '/home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_fa0fe/fast' failed
-make: *** [cmTC_fa0fe/fast] Error 2
+make[1]: *** [cmTC_07f6e] Error 1
+make[1]: Leaving directory `/home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
+make: *** [cmTC_07f6e/fast] Error 2
 
-File /home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+File /home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
 #include <pthread.h>
 
@@ -34,22 +32,20 @@ int main(int argc, char** argv)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp
+Change Dir: /home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_ca4d4/fast"
-/usr/bin/make -f CMakeFiles/cmTC_ca4d4.dir/build.make CMakeFiles/cmTC_ca4d4.dir/build
-make[1]: Entering directory '/home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_ca4d4.dir/CheckFunctionExists.c.o
-/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_ca4d4.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
-Linking C executable cmTC_ca4d4
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ca4d4.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_ca4d4.dir/CheckFunctionExists.c.o  -o cmTC_ca4d4 -rdynamic -lpthreads 
+Run Build Command:"/usr/bin/make" "cmTC_71c44/fast"
+/usr/bin/make -f CMakeFiles/cmTC_71c44.dir/build.make CMakeFiles/cmTC_71c44.dir/build
+make[1]: Entering directory `/home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_71c44.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_71c44.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_71c44
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_71c44.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_71c44.dir/CheckFunctionExists.c.o  -o cmTC_71c44 -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_ca4d4.dir/build.make:97: recipe for target 'cmTC_ca4d4' failed
-make[1]: *** [cmTC_ca4d4] Error 1
-make[1]: Leaving directory '/home/tjmagnan/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_ca4d4/fast' failed
-make: *** [cmTC_ca4d4/fast] Error 2
+make[1]: *** [cmTC_71c44] Error 1
+make[1]: Leaving directory `/home/john/cameraarm/app/calibration_actuation/testing/direct_mk0/build/CMakeFiles/CMakeTmp'
+make: *** [cmTC_71c44/fast] Error 2
 
 
