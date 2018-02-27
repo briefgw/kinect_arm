@@ -724,6 +724,49 @@
 
  /* (X) ACTUATION */
 
+// Write camera intrinsics to file for Tarek to pull
+bool write_intrinsics( string name ) {
+
+  // TODO: Call script to cd to file with images
+
+  ofstream outStream;
+  outStream.open(name.c_str());
+
+  if ( outStream ) {
+    // tVector
+    outStream << "TVector" << endl;
+    outStream << kinectActual[0] << endl;
+    outStream << kinectActual[1] << endl;
+    outStream << kinectActual[2] << endl << endl;
+
+    // rVector
+    uint16_t rows = kinectRotationMatrix.rows;
+    uint16_t columns = kinectRotationMatrix.cols;
+
+    for ( int r = 0 ; r < rows ; r++  ) {
+      for ( int c = 0 ; c < columns ; c++ ) {
+        double value = kinectRotationMatrix.at<double>(r, c);
+        outStream << value << "\t";
+      }
+      outStream << endl;
+    }
+
+    outStream << endl;
+
+    // Camera intrinsics
+    outStream << "Camera Intrinsics: focal height width" << endl;
+    outStream << "575.816 480 640" << endl;
+
+
+    outStream.close();
+
+    //TODO: Call script to move file change directories back
+    return true;
+  }
+  return false;
+
+}
+
  // Conversion functions
  Vec3d cartesian_to_polar( Vec3d cartesian ) {
    double r, theta = 0;
@@ -742,50 +785,73 @@
    return cartesian;
  }
 
+ // Ensure that the final location of the Kinect Camera is within the bounds of the robotic arm
+ // Refer to visual in documentation for clarifying help
+ // TODO: Make sure that when converting axis reference frames and starting location of theta remain valid
  bool validLocation( Vec3d originalPolar ) {
 
-   // TODO: Save values as constants above
+   // Save values as constants for easy access
+   double r = originalPolar[0];
+   double theta = originalPolar[1];
+   double z = originalPolar[2];
 
    // format r, theta, z
 
-   // Ensure theta is valid TODO: Correct max angle
-   if ( theta < 0 || theta > 330 ) { return false; }
+   // Ensure theta is valid TODO: Correct max angle in radians
+   // Can no ignore theta for all other calculations
+   if ( theta < 0 || theta > 5.75 ) { return false; }
 
    // Ensure r is valid
+   // if r < .1m than the arm will hit the center arm
    if ( r < .1 ) { return false; }
 
-   // Alter (r, theta, z)
+   // Shift r-z axis to be at the main pivot point of the arm
+   // .585 m from center
+   r = r - .585;
 
-   // else if (  ) {  }
+   // Now convert to new polar coordinate system with pivot point of arm being center
+   // Minimum and maximum extention of the arm as r constraints and min and max radial span as theta constraints
+   Vec3d newPolar - cartesian_to_polar( originalPolar );
 
-   else {
-     return true;
-   }
+   // resave values as constants for easy access
+   r      = newPolar[0];
+   theta  = newPolar[1];
+   z      = newPolar[2];
 
+   // Valid extention of arm?
+   if ( r < .69 || r > 1.045 ) { return false; }
+
+   // Valid angle
+   // TODO: Later iterations can account for smaller pieces outside of this wedge
+   if ( theta < .578 || theta > 2.254 ) { return false; }
+
+   // No limiter met, return true and continue to move
+   return true;
  }
 
  // Basic functions when location isn't specified
-
- int down() {
-   // open one x2 close the other
- }
-
- int up() {
-   // open one x2 close the other - inverse
- }
-
- int left() {
-   // Stepper motor
-   socket_request("move(3, 10)");
- }
-
- int right() {
-   // stepper motor
- }
-
- int rotateCamera() {
-   // open one x2 close the other
- }
+ // Currently not implemented
+         //
+         // int down() {
+         //   // open one x2 close the other
+         // }
+         //
+         // int up() {
+         //   // open one x2 close the other - inverse
+         // }
+         //
+         // int left() {
+         //   // Stepper motor
+         //   socket_request("move(3, 10)");
+         // }
+         //
+         // int right() {
+         //   // stepper motor
+         // }
+         //
+         // int rotateCamera() {
+         //   // open one x2 close the other
+         // }
 
  // Error correct
  int error_correct( Vec3d desired_endpoint ) {
@@ -875,11 +941,22 @@
    // Find most recent image
    string mostRecentImage = obtainMostRecentImage();
 
+   // Save a copy of title with no extention
+   string txt_name = mostRecentImage + ".txt";
+
    // Must concatinate extention for obtainSavedImage
    mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
    obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
+
+   // Ensure location is valid before moving, otherwise return current
+   Vec3d desired_endpoint_polar = cartesian_to_polar( desired_endpoint_cart );
+
+   if ( !validLocation(desired_endpoint_polar) ) {
+     std::cout << "ERROR: Invalid location requested, returning location" << '\n';
+     return mostRecentImage;
+   }
 
    //Current location saved globally
    move(kinectActual, desired_endpoint_cart);
@@ -891,6 +968,7 @@
    mostRecentImage = obtainMostRecentImage();
 
    //TODO: Get .txt file information that GUI needs for analysis
+   write_intrinsics(txt_name);
 
    // Return image name to user to load
    return mostRecentImage;
