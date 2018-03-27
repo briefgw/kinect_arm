@@ -903,11 +903,42 @@ bool approxEquals (double[] u, double[] v, double errorTolerance) {
      return;
  }
 
+ double[] get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
+
+   double[] mtr_movements = new double[2];
+
+   // Get differences in r(radius)
+   double r_diff = new_pt[0] - old_pt[0];
+
+   // Get differences in z
+   double z_diff = new_pt[2] - old_pt[2];
+
+   // (1) TODO: get hypotnous from two triangles
+
+   // (2) TODO: Get origin theta in right triangles using hypotnous
+
+   // (3) TODO: Get origin theta in right trangles using lower motor arm
+
+   // (4) TODO: theta_a = (2_old - 3_old) theta_b = (2_new - 3_new)
+
+   // (5) Required movement of lower Arm
+   // TODO: mtr_movements[0] = theta_b - theta_a;
+
+   // (6) TODO: Get opposite thetas in robot triangle
+
+   // (7) Required movement of upper Arm
+   // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
+
+   return mtr_movements;
+ }
+
  // Move to location
  // Takes in cartesian coordinates
  int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
      // Find polar coordinates for analysis
      Vec3d new_pt, old_pt;
+     old_pt = cartesian_to_polar(old_pt_cart);
+     new_pt = cartesian_to_polar(new_pt_cart);
 
      // Motor values
      // # motor == 1: "Servo Gearbox:"
@@ -924,15 +955,9 @@ bool approxEquals (double[] u, double[] v, double errorTolerance) {
      // Get differences in theta and move stepper motor
      double theta_diff = new_pt[1] - old_pt[1];
 
-     // Get differences in r(radius)
-     double r_diff = new_pt[0] - old_pt[0];
-
-     // Get differences in z
-     double z_diff = new_pt[2] - old_pt[2];
-
-     //TODO: Determine what the theta_diff translates to in stepper movements
+     //Determine what the theta_diff translates to in stepper movements
      // counterclockwise: Increasing theta | clockwise: decreasing theta
-     double stepperConverstion = 1;
+     double stepperConverstion = 1; //TODO: Update Conversion
 
      if ( theta_diff > 0 ) {
        mtr5_movement = (int) theta_diff/stepperConverstion;
@@ -940,9 +965,13 @@ bool approxEquals (double[] u, double[] v, double errorTolerance) {
        mtr4_movement = (int) Math.abs(theta_diff/stepperConverstion);
      }
 
-     //TODO: Determine the combination of movements of other motors to get to correct r & z
-         // Longer term
-         // TODO: Call another method for this
+     // Determine the combination of movements of other motors to get to correct r & z
+    double[] mtr_movements = get_mtr_movements(old_pt, new_pt);
+    mtr2_movement = mtr_movements[0];
+    mtr3_movement = mtr_movements[1];
+
+    // TODO: Figure out final angle for servo motor to get a good view
+      // How...
 
      // Iniate Socket communication and Call Karl's API to move points
      string socket_message = "";
