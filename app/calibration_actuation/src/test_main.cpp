@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
   }
 
   obtainSavedImage(argv[1], cameraMatrix, distanceCoefficients, showWindow);
-  write_intrisics("test.txt");
+  write_intrinsics("test.txt");
   /**/
 
   // obtainMostRecentImage();

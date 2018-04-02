@@ -830,6 +830,75 @@ bool write_intrinsics( string name ) {
    return true;
  }
 
+ // Move to location
+ // Takes in cartesian coordinates
+ int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
+     // Find polar coordinates for analysis
+     Vec3d new_pt, old_pt;
+     old_pt = cartesian_to_polar(old_pt_cart);
+     new_pt = cartesian_to_polar(new_pt_cart);
+
+     // Motor values
+     // # motor == 1: "Servo Gearbox:"
+     int mtr1_movement = 0;
+     // # motor == 2: "Linear Actuator - Middle:"
+     int mtr2_movement = 0;
+     // # motor == 3: "Linear Actuator - Bottom:"
+     int mtr3_movement = 0;
+     // # motor == 4: "Stepper Motor (clockwise):"
+     int mtr4_movement = 0;
+     // # motor == 5: "Stepper Motor (counterclockwise):"
+     int mtr5_movement = 0;
+
+     // Get differences in theta and move stepper motor
+     double theta_diff = new_pt[1] - old_pt[1];
+
+     //Determine what the theta_diff translates to in stepper movements
+     // counterclockwise: Increasing theta | clockwise: decreasing theta
+     double stepperConverstion = 1; //TODO: Update Conversion
+
+     if ( theta_diff > 0 ) {
+       mtr5_movement = (int) theta_diff/stepperConverstion;
+     } else if ( theta_diff < 0 ) {
+       mtr4_movement = (int) abs(theta_diff/stepperConverstion);
+     }
+
+     // Determine the combination of movements of other motors to get to correct r & z
+    double mtr_movements[2];
+    mtr_movements = get_mtr_movements(old_pt, new_pt);
+    mtr2_movement = mtr_movements[0];
+    mtr3_movement = mtr_movements[1];
+
+    // TODO: Figure out final angle for servo motor to get a good view
+      // How...
+
+     // Iniate Socket communication and Call Karl's API to move points
+     string socket_message = "";
+       // # motor == 1: "Servo Gearbox:"
+       socket_message = "1," + mtr1_movement;
+       socket_request(socket_message);
+
+       // # motor == 2: "Linear Actuator - Middle:"
+       socket_message = "2," + mtr2_movement;
+       socket_request(socket_message);
+
+       // # motor == 3: "Linear Actuator - Bottom:"
+       socket_message = "3," + mtr3_movement;
+       socket_request(socket_message);
+
+       // # motor == 4: "Stepper Motor (clockwise):"
+       socket_message = "4," + mtr4_movement;
+       socket_request(socket_message);
+
+       // # motor == 5: "Stepper Motor (counterclockwise):"
+       socket_message = "5," + mtr5_movement;
+       socket_request(socket_message);
+
+     //Call calibration function
+     error_correct( new_pt_cart );
+     return 1;
+ }
+
  // Basic functions when location isn't specified
  // Currently not implemented
          //
@@ -892,7 +961,7 @@ string obtainMostRecentImage() {
 
 
 // Within marvin of error calculation using MSE
-bool approxEquals (double* u, double* v, double errorTolerance) {
+bool approxEquals (Vec3d u, Vec3d v, double errorTolerance) {
 
   double MSE = 0;
 
@@ -966,73 +1035,7 @@ bool approxEquals (double* u, double* v, double errorTolerance) {
    return mtr_movements;
  }
 
- // Move to location
- // Takes in cartesian coordinates
- int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
-     // Find polar coordinates for analysis
-     Vec3d new_pt, old_pt;
-     old_pt = cartesian_to_polar(old_pt_cart);
-     new_pt = cartesian_to_polar(new_pt_cart);
 
-     // Motor values
-     // # motor == 1: "Servo Gearbox:"
-     int mtr1_movement = 0;
-     // # motor == 2: "Linear Actuator - Middle:"
-     int mtr2_movement = 0;
-     // # motor == 3: "Linear Actuator - Bottom:"
-     int mtr3_movement = 0;
-     // # motor == 4: "Stepper Motor (clockwise):"
-     int mtr4_movement = 0;
-     // # motor == 5: "Stepper Motor (counterclockwise):"
-     int mtr5_movement = 0;
-
-     // Get differences in theta and move stepper motor
-     double theta_diff = new_pt[1] - old_pt[1];
-
-     //Determine what the theta_diff translates to in stepper movements
-     // counterclockwise: Increasing theta | clockwise: decreasing theta
-     double stepperConverstion = 1; //TODO: Update Conversion
-
-     if ( theta_diff > 0 ) {
-       mtr5_movement = (int) theta_diff/stepperConverstion;
-     } else if ( theta_diff < 0 ) {
-       mtr4_movement = (int) Math.abs(theta_diff/stepperConverstion);
-     }
-
-     // Determine the combination of movements of other motors to get to correct r & z
-    double[] mtr_movements = get_mtr_movements(old_pt, new_pt);
-    mtr2_movement = mtr_movements[0];
-    mtr3_movement = mtr_movements[1];
-
-    // TODO: Figure out final angle for servo motor to get a good view
-      // How...
-
-     // Iniate Socket communication and Call Karl's API to move points
-     string socket_message = "";
-       // # motor == 1: "Servo Gearbox:"
-       socket_message = "1," + mtr1_movement;
-       socket_request(socket_message);
-
-       // # motor == 2: "Linear Actuator - Middle:"
-       socket_message = "2," + mtr2_movement;
-       socket_request(socket_message);
-
-       // # motor == 3: "Linear Actuator - Bottom:"
-       socket_message = "3," + mtr3_movement;
-       socket_request(socket_message);
-
-       // # motor == 4: "Stepper Motor (clockwise):"
-       socket_message = "4," + mtr4_movement;
-       socket_request(socket_message);
-
-       // # motor == 5: "Stepper Motor (counterclockwise):"
-       socket_message = "5," + mtr5_movement;
-       socket_request(socket_message);
-
-     //Call calibration function
-     error_correct( new_pt_cart );
-     return 1;
- }
 
  // Public API
  // Takes in a desired endpoint, determines the current location and returns the string of the name of the image from that pose (jpg and pcl)
