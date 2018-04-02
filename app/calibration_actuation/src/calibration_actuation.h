@@ -431,8 +431,8 @@
      frame = imread(fullPath);
      // frame = imread(name.c_str());
    }
-   catch (runtime_error& ex) {
-       fprintf(stderr, "Exception importing image: %s\n", ex.what());
+   catch (int e) {
+       fprintf(stderr, "Exception importing image: %i\n", e;
        return 1;
    }
    printf("Image successfully opens!\n");
@@ -830,6 +830,98 @@ bool write_intrinsics( string name ) {
    return true;
  }
 
+ double* get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
+
+   double mtr_movements[2];
+
+   // Get differences in r(radius)
+   double r_diff = new_pt[0] - old_pt[0];
+
+   // Get differences in z
+   double z_diff = new_pt[2] - old_pt[2];
+
+   // (1) TODO: get hypotnous from two triangles
+
+   // (2) TODO: Get origin theta in right triangles using hypotnous
+
+   // (3) TODO: Get origin theta in right trangles using lower motor arm
+
+   // (4) TODO: theta_a = (2_old - 3_old) theta_b = (2_new - 3_new)
+
+   // (5) Required movement of lower Arm
+   // TODO: mtr_movements[0] = theta_b - theta_a;
+
+   // (6) TODO: Get opposite thetas in robot triangle
+
+   // (7) Required movement of upper Arm
+   // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
+
+   // (8) Once movements determined divide by Karl Conversion
+
+   return mtr_movements;
+ }
+
+ // When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
+ // This function returns the name of the pcl and jpg images to analyze
+ string obtainMostRecentImage() {
+  string image = "";
+  // Directory path of saved images is saved globally as KinectScan_path
+
+  // List of all images in the folder
+  vector<string> files;
+  string dir = KinectScan_path;              //Not currently in use
+  dir = "../testing/winter_break_photos/";
+
+  // Alternative
+  system("./getImage.sh");   // Find the image
+
+  // Load image name from text file
+  ifstream inFile;
+
+  inFile.open("../build/mostRecent.txt");
+
+  if (!inFile) {
+     cout << "Unable to open file";
+     exit(1); // terminate with error
+  }
+
+  getline(inFile, image);
+
+  inFile.close();
+
+  // Get substring without extention
+  image = image.substr( 0, image.length() - 4 );
+  //image = image.substr( 0, image.find(".") );
+  cout << "Most recent image taken: " << image << endl;
+
+  return image;
+ }
+
+ // Error correct
+ void error_correct( Vec3d desired_endpoint ) {
+
+    // Determine errorTolerance
+    double errorTolerance = .1;
+
+     // Get actual location of camera (actual_pt)
+     // Find most recent image
+     string mostRecentImage = obtainMostRecentImage();
+
+     // Must concatinate extention for obtainSavedImage
+     mostRecentImage = mostRecentImage + ".png";
+
+     // Analyze mostRecentImage
+     obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
+
+     // Margin of error mesuring
+     // If within, simply return | else continue
+     if ( approxEquals(kinectActual, desired_endpoint, errorTolerance) ) { return; }
+
+     // Not within error, call move function between points
+     move(kinectActual, desired_endpoint);
+     return;
+ }
+
  // Move to location
  // Takes in cartesian coordinates
  int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
@@ -923,43 +1015,6 @@ bool write_intrinsics( string name ) {
          //   // open one x2 close the other
          // }
 
-// When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
-// This function returns the name of the pcl and jpg images to analyze
-string obtainMostRecentImage() {
- string image = "";
- // Directory path of saved images is saved globally as KinectScan_path
-
- // List of all images in the folder
- vector<string> files;
- string dir = KinectScan_path;              //Not currently in use
- dir = "../testing/winter_break_photos/";
-
- // Alternative
- system("./getImage.sh");   // Find the image
-
- // Load image name from text file
- ifstream inFile;
-
- inFile.open("../build/mostRecent.txt");
-
- if (!inFile) {
-    cout << "Unable to open file";
-    exit(1); // terminate with error
- }
-
- getline(inFile, image);
-
- inFile.close();
-
- // Get substring without extention
- image = image.substr( 0, image.length() - 4 );
- //image = image.substr( 0, image.find(".") );
- cout << "Most recent image taken: " << image << endl;
-
- return image;
-}
-
-
 // Within marvin of error calculation using MSE
 bool approxEquals (Vec3d u, Vec3d v, double errorTolerance) {
 
@@ -978,62 +1033,6 @@ bool approxEquals (Vec3d u, Vec3d v, double errorTolerance) {
 
   return false;
 }
-
- // Error correct
- void error_correct( Vec3d desired_endpoint ) {
-
-    // Determine errorTolerance
-    double errorTolerance = .1;
-
-     // Get actual location of camera (actual_pt)
-     // Find most recent image
-     string mostRecentImage = obtainMostRecentImage();
-
-     // Must concatinate extention for obtainSavedImage
-     mostRecentImage = mostRecentImage + ".png";
-
-     // Analyze mostRecentImage
-     obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
-
-     // Margin of error mesuring
-     // If within, simply return | else continue
-     if ( approxEquals(kinectActual, desired_endpoint, errorTolerance) ) { return; }
-
-     // Not within error, call move function between points
-     move(kinectActual, desired_endpoint);
-     return;
- }
-
- double* get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
-
-   double mtr_movements[2];
-
-   // Get differences in r(radius)
-   double r_diff = new_pt[0] - old_pt[0];
-
-   // Get differences in z
-   double z_diff = new_pt[2] - old_pt[2];
-
-   // (1) TODO: get hypotnous from two triangles
-
-   // (2) TODO: Get origin theta in right triangles using hypotnous
-
-   // (3) TODO: Get origin theta in right trangles using lower motor arm
-
-   // (4) TODO: theta_a = (2_old - 3_old) theta_b = (2_new - 3_new)
-
-   // (5) Required movement of lower Arm
-   // TODO: mtr_movements[0] = theta_b - theta_a;
-
-   // (6) TODO: Get opposite thetas in robot triangle
-
-   // (7) Required movement of upper Arm
-   // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
-
-   // (8) Once movements determined divide by Karl Conversion
-
-   return mtr_movements;
- }
 
 
 
