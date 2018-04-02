@@ -432,7 +432,7 @@
      // frame = imread(name.c_str());
    }
    catch (int e) {
-       fprintf(stderr, "Exception importing image: %i\n", e;
+       fprintf(stderr, "Exception importing image: %i\n", e);
        return 1;
    }
    printf("Image successfully opens!\n");
@@ -897,6 +897,25 @@ bool write_intrinsics( string name ) {
   return image;
  }
 
+ // Within marvin of error calculation using MSE
+ bool approxEquals (Vec3d u, Vec3d v, double errorTolerance) {
+
+   double MSE = 0;
+
+   // Calculate MSE
+   for ( int i = 0 ; i < 3 ; i++ ) {
+     double diff = u[i] - v[i];
+     MSE += ( diff * diff );
+   }
+
+   MSE = MSE / 3;
+
+   // See if within errorTolerance
+   if ( abs(MSE) <= errorTolerance ) { return true; }
+
+   return false;
+ }
+
  // Error correct
  void error_correct( Vec3d desired_endpoint ) {
 
@@ -956,7 +975,7 @@ bool write_intrinsics( string name ) {
      }
 
      // Determine the combination of movements of other motors to get to correct r & z
-    double mtr_movements[2];
+    double* mtr_movements;
     mtr_movements = get_mtr_movements(old_pt, new_pt);
     mtr2_movement = mtr_movements[0];
     mtr3_movement = mtr_movements[1];
@@ -1014,25 +1033,6 @@ bool write_intrinsics( string name ) {
          // int rotateCamera() {
          //   // open one x2 close the other
          // }
-
-// Within marvin of error calculation using MSE
-bool approxEquals (Vec3d u, Vec3d v, double errorTolerance) {
-
-  double MSE = 0;
-
-  // Calculate MSE
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    double diff = u[i] - v[i];
-    MSE += ( diff * diff );
-  }
-
-  MSE = MSE / 3;
-
-  // See if within errorTolerance
-  if ( abs(MSE) <= errorTolerance ) { return true; }
-
-  return false;
-}
 
 
 
