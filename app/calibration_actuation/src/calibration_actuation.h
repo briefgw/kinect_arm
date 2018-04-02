@@ -814,7 +814,7 @@ bool write_intrinsics( string name ) {
 
    // Now convert to new polar coordinate system with pivot point of arm being center
    // Minimum and maximum extention of the arm as r constraints and min and max radial span as theta constraints
-   Vec3d newPolar - cartesian_to_polar( originalPolar );
+   Vec3d newPolar = cartesian_to_polar( originalPolar );
 
    // resave values as constants for easy access
    r      = newPolar[0];
