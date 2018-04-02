@@ -798,8 +798,6 @@ bool write_intrinsics( string name ) {
    double theta = originalPolar[1];
    double z = originalPolar[2];
 
-   // format r, theta, z
-
    // Ensure theta is valid TODO: Correct max angle in radians
    // Can no ignore theta for all other calculations
    if ( theta < 0 || theta > 5.75 ) { return false; }
