@@ -431,6 +431,7 @@
    //string projectPath = "/home/tjmagnan/sd-18-hatata_magnan/calibration_actuation";
    string projectPath = "../../../collected_data/";
    string fullPath = projectPath + name.c_str();
+   fullPath = name.c_str();
    printf("Attempting to open %s\n%s\n", name.c_str(), fullPath);
    try {
      frame = imread(fullPath);
@@ -724,6 +725,49 @@
 
  /* (X) ACTUATION */
 
+ // Write camera intrinsics to file for Tarek to pull
+ bool write_intrisics( string name ) {
+
+   // TODO: Call script to cd to file with images
+
+   ofstream outStream;
+   outStream.open(name.c_str());
+
+   if ( outStream ) {
+     // tVector
+     outStream << "TVector" << endl;
+     outStream << kinectActual[0] << endl;
+     outStream << kinectActual[1] << endl;
+     outStream << kinectActual[2] << endl << endl;
+
+     // rVector
+     uint16_t rows = kinectRotationMatrix.rows;
+     uint16_t columns = kinectRotationMatrix.cols;
+
+     for ( int r = 0 ; r < rows ; r++  ) {
+       for ( int c = 0 ; c < columns ; c++ ) {
+         double value = kinectRotationMatrix.at<double>(r, c);
+         outStream << value << "\t";
+       }
+       outStream << endl;
+     }
+
+     outStream << endl;
+
+     // Camera intrinsics
+     outStream << "Camera Intrinsics: focal height width" << endl;
+     outStream << "575.816 480 640" << endl;
+
+
+     outStream.close();
+
+     //TODO: Call script to move file change directories back
+     return true;
+   }
+   return false;
+
+ }
+
  // Conversion functions
  Vec3d cartesian_to_polar( Vec3d cartesian ) {
    double r, theta = 0;
@@ -747,6 +791,8 @@
    // TODO: Save values as constants above
 
    // format r, theta, z
+   double theta = originalPolar[1];
+   double r = originalPolar[r];
 
    // Ensure theta is valid TODO: Correct max angle
    if ( theta < 0 || theta > 330 ) { return false; }
