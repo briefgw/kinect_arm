@@ -69,7 +69,6 @@
  string KinectScan_path = "../../../src/Kinect_code/output/";
 
  // Known location of markers in Test Environment
- /* TODO: Update these values with those recorded. */
  std::vector<Vec3d> translationVectorsToOrigin;
  Vec3d mk0 (0, -0.4318f, 0);
  Vec3d mk1 ( 0.4318f, 0, 0);
@@ -153,7 +152,6 @@
 
    printf("I successfully getChessboardCorners, createKnowBoardPositions, and set distanceCoefficients\n");
 
-   // TODO ISSUE! passing in correct points but not recognizing in opencv function
    cv::calibrateCamera(worldSpaceCornerPoints, checkerboardImageSpacePoints, boardSize, cameraMatrix, distanceCoefficients, rVectors, tVectors);
  }
 
@@ -297,7 +295,6 @@
          printf("ENTER: Save File\n");
          printf("COUNT Image found: %i\n", savedImages.size());
          if ( savedImages.size() > 15 ) {
-           // TODO: Issue with this call in my method to other method
            printf("Enters. Correct number of images found\n");
            cameraCalibration(savedImages, chessboardDimensions, calibrationSquareDemension, cameraMatrix, distanceCoefficients);
            printf("Calibration Complete...Waiting to save file\n");
@@ -366,8 +363,6 @@
 
    Rodrigues(rotationVectors[0], kinectRotationMatrix); // TODO: Remove when average found
    Rodrigues(kinectRotationMatrix, kinectRVec);
-
-   // TODO Print out Final Rotation
 
    // translationVectors have the marker coordinates system transformed to the kinect
    // Add each known location to translationVectors
@@ -703,6 +698,12 @@
  }
 
  // Communication with Karl's python code
+ // Request format: "[motorNum],[num_steps]
+ // # motor == 1: "Servo Gearbox:"
+ // # motor == 2: "Linear Actuator - Middle:"
+ // # motor == 3: "Linear Actuator - Bottom:"
+ // # motor == 4: "Stepper Motor (clockwise):"
+ // # motor == 5: "Stepper Motor (counterclockwise):"
  int socket_request(string data) {
    cout<<"Initiating socket for motor movement...";
 
@@ -725,48 +726,50 @@
 
  /* (X) ACTUATION */
 
- // Write camera intrinsics to file for Tarek to pull
- bool write_intrisics( string name ) {
+// Write camera intrinsics to file for Tarek to pull
+bool write_intrinsics( string name ) {
 
-   // TODO: Call script to cd to file with images
+  // Call script to cd to file with images
+  system("ChangeToImageDirectory.sh");
 
-   ofstream outStream;
-   outStream.open(name.c_str());
+  ofstream outStream;
+  outStream.open(name.c_str());
 
-   if ( outStream ) {
-     // tVector
-     outStream << "TVector" << endl;
-     outStream << kinectActual[0] << endl;
-     outStream << kinectActual[1] << endl;
-     outStream << kinectActual[2] << endl << endl;
+  if ( outStream ) {
+    // tVector
+    outStream << "TVector" << endl;
+    outStream << kinectActual[0] << endl;
+    outStream << kinectActual[1] << endl;
+    outStream << kinectActual[2] << endl << endl;
 
-     // rVector
-     uint16_t rows = kinectRotationMatrix.rows;
-     uint16_t columns = kinectRotationMatrix.cols;
+    // rVector
+    uint16_t rows = kinectRotationMatrix.rows;
+    uint16_t columns = kinectRotationMatrix.cols;
 
-     for ( int r = 0 ; r < rows ; r++  ) {
-       for ( int c = 0 ; c < columns ; c++ ) {
-         double value = kinectRotationMatrix.at<double>(r, c);
-         outStream << value << "\t";
-       }
-       outStream << endl;
-     }
+    for ( int r = 0 ; r < rows ; r++  ) {
+      for ( int c = 0 ; c < columns ; c++ ) {
+        double value = kinectRotationMatrix.at<double>(r, c);
+        outStream << value << "\t";
+      }
+      outStream << endl;
+    }
 
-     outStream << endl;
+    outStream << endl;
 
-     // Camera intrinsics
-     outStream << "Camera Intrinsics: focal height width" << endl;
-     outStream << "575.816 480 640" << endl;
+    // Camera intrinsics
+    outStream << "Camera Intrinsics: focal height width" << endl;
+    outStream << "575.816 480 640" << endl;
 
 
-     outStream.close();
+    outStream.close();
 
-     //TODO: Call script to move file change directories back
-     return true;
-   }
-   return false;
+    //Call script to move file change directories back
+    system("ChangeToSRCDirectory.sh");
+    return true;
+  }
+  return false;
 
- }
+}
 
  // Conversion functions
  Vec3d cartesian_to_polar( Vec3d cartesian ) {
@@ -786,94 +789,217 @@
    return cartesian;
  }
 
+ // Ensure that the final location of the Kinect Camera is within the bounds of the robotic arm
+ // Refer to visual in documentation for clarifying help
+ // TODO: Make sure that when converting axis reference frames and starting location of theta remain valid
  bool validLocation( Vec3d originalPolar ) {
 
-   // TODO: Save values as constants above
+   // Save values as constants for easy access
+   double r = originalPolar[0];
+   double theta = originalPolar[1];
+   double z = originalPolar[2];
 
    // format r, theta, z
    double theta = originalPolar[1];
    double r = originalPolar[r];
 
-   // Ensure theta is valid TODO: Correct max angle
-   if ( theta < 0 || theta > 330 ) { return false; }
+   // Ensure theta is valid TODO: Correct max angle in radians
+   // Can no ignore theta for all other calculations
+   if ( theta < 0 || theta > 5.75 ) { return false; }
 
    // Ensure r is valid
+   // if r < .1m than the arm will hit the center arm
    if ( r < .1 ) { return false; }
 
-   // Alter (r, theta, z)
+   // Shift r-z axis to be at the main pivot point of the arm
+   // .585 m from center
+   r = r - .585;
 
-   // else if (  ) {  }
+   // Now convert to new polar coordinate system with pivot point of arm being center
+   // Minimum and maximum extention of the arm as r constraints and min and max radial span as theta constraints
+   Vec3d newPolar = cartesian_to_polar( originalPolar );
 
-   else {
-     return true;
-   }
+   // resave values as constants for easy access
+   r      = newPolar[0];
+   theta  = newPolar[1];
+   z      = newPolar[2];
 
+   // Valid extention of arm?
+   if ( r < .69 || r > 1.045 ) { return false; }
+
+   // Valid angle
+   // TODO: Later iterations can account for smaller pieces outside of this wedge
+   if ( theta < .578 || theta > 2.254 ) { return false; }
+
+   // No limiter met, return true and continue to move
+   return true;
  }
 
  // Basic functions when location isn't specified
+ // Currently not implemented
+         //
+         // int down() {
+         //   // open one x2 close the other
+         // }
+         //
+         // int up() {
+         //   // open one x2 close the other - inverse
+         // }
+         //
+         // int left() {
+         //   // Stepper motor
+         //   socket_request("move(3, 10)");
+         // }
+         //
+         // int right() {
+         //   // stepper motor
+         // }
+         //
+         // int rotateCamera() {
+         //   // open one x2 close the other
+         // }
 
- int down() {
-   // open one x2 close the other
- }
+// Within marvin of error calculation using MSE
+bool approxEquals (double[] u, double[] v, double errorTolerance) {
+  if ( u == null || v == null ) { return false; }
+  if ( u.length != v.length ) { return false; }
 
- int up() {
-   // open one x2 close the other - inverse
- }
+  double MSE = 0;
 
- int left() {
-   // Stepper motor
-   socket_request("move(3, 10)");
- }
+  // Calculate MSE
+  for ( int i = 0 ; i < u.length ; i++ ) {
+    double diff = u[i] - v[i];
+    MSE += ( diff * diff );
+  }
 
- int right() {
-   // stepper motor
- }
+  MSE = MSE / u.length;
 
- int rotateCamera() {
-   // open one x2 close the other
- }
+  // See if within errorTolerance
+  if ( Math.abs(MSE) <= errorTolerance ) { return true; }
+
+  return false;
+}
+
 
  // Error correct
- int error_correct( Vec3d desired_endpoint ) {
-     //TODO: Get actual location of camera (actual_pt)
-         //TODO: Call upon Arucu & opencv libraries
-     //TODO: Margin of error mesuring
-     //TODO: If within, simply return | else continue
-     //TODO: Not within error, call move function between points
-     //TODO: move( actual_pt, desired_endpoint )
+ void error_correct( Vec3d desired_endpoint ) {
+
+    // Determine errorTolerance
+    double errorTolerance = .1;
+
+     // Get actual location of camera (actual_pt)
+     // Find most recent image
+     string mostRecentImage = obtainMostRecentImage();
+
+     // Must concatinate extention for obtainSavedImage
+     mostRecentImage = mostRecentImage + ".png";
+
+     // Analyze mostRecentImage
+     obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
+
+     // Margin of error mesuring
+     // If within, simply return | else continue
+     if ( approxEquals(kinectActual, desired_endpoint, errorTolerance) ) { return; }
+
+     // Not within error, call move function between points
+     move(kinectActual, desired_endpoint);
+     return;
  }
 
- //
+ double[] get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
+
+   double[] mtr_movements = new double[2];
+
+   // Get differences in r(radius)
+   double r_diff = new_pt[0] - old_pt[0];
+
+   // Get differences in z
+   double z_diff = new_pt[2] - old_pt[2];
+
+   // (1) TODO: get hypotnous from two triangles
+
+   // (2) TODO: Get origin theta in right triangles using hypotnous
+
+   // (3) TODO: Get origin theta in right trangles using lower motor arm
+
+   // (4) TODO: theta_a = (2_old - 3_old) theta_b = (2_new - 3_new)
+
+   // (5) Required movement of lower Arm
+   // TODO: mtr_movements[0] = theta_b - theta_a;
+
+   // (6) TODO: Get opposite thetas in robot triangle
+
+   // (7) Required movement of upper Arm
+   // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
+
+   return mtr_movements;
+ }
 
  // Move to location
  // Takes in cartesian coordinates
  int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
      // Find polar coordinates for analysis
      Vec3d new_pt, old_pt;
+     old_pt = cartesian_to_polar(old_pt_cart);
+     new_pt = cartesian_to_polar(new_pt_cart);
 
-     //TODO: Get differences in theta and move stepper motor
+     // Motor values
+     // # motor == 1: "Servo Gearbox:"
+     int mtr1_movement = 0;
+     // # motor == 2: "Linear Actuator - Middle:"
+     int mtr2_movement = 0;
+     // # motor == 3: "Linear Actuator - Bottom:"
+     int mtr3_movement = 0;
+     // # motor == 4: "Stepper Motor (clockwise):"
+     int mtr4_movement = 0;
+     // # motor == 5: "Stepper Motor (counterclockwise):"
+     int mtr5_movement = 0;
+
+     // Get differences in theta and move stepper motor
      double theta_diff = new_pt[1] - old_pt[1];
 
-     //TODO: Get differences in r(radius)
-     double r_diff = new_pt[0] - old_pt[0];
+     //Determine what the theta_diff translates to in stepper movements
+     // counterclockwise: Increasing theta | clockwise: decreasing theta
+     double stepperConverstion = 1; //TODO: Update Conversion
 
-     //TODO: Get differences in z
-     double z_diff = new_pt[2] - old_pt[2];
+     if ( theta_diff > 0 ) {
+       mtr5_movement = (int) theta_diff/stepperConverstion;
+     } else if ( theta_diff < 0 ) {
+       mtr4_movement = (int) Math.abs(theta_diff/stepperConverstion);
+     }
 
-     //TODO: Determine what the z_diff translates to in stepper movements
+     // Determine the combination of movements of other motors to get to correct r & z
+    double[] mtr_movements = get_mtr_movements(old_pt, new_pt);
+    mtr2_movement = mtr_movements[0];
+    mtr3_movement = mtr_movements[1];
 
-     //TODO: Determine the combination of movements of other motors to get to correct r & z
-         // Longer term
+    // TODO: Figure out final angle for servo motor to get a good view
+      // How...
 
-     //TODO: Ensure that moves are valid, if not change to valid, or throw error (return -1;)
-      // Within min and maximum of Motor movements
+     // Iniate Socket communication and Call Karl's API to move points
+     string socket_message = "";
+       // # motor == 1: "Servo Gearbox:"
+       socket_message = "1," + mtr1_movement;
+       socket_request(socket_message);
 
-     //TODO: Iniate Socket communication and Call Karl's API to move points
-        // Stepper motor for z
-        // Continued
+       // # motor == 2: "Linear Actuator - Middle:"
+       socket_message = "2," + mtr2_movement;
+       socket_request(socket_message);
 
-     //TODO: Call calibration function
-     error_correct( new_pt );
+       // # motor == 3: "Linear Actuator - Bottom:"
+       socket_message = "3," + mtr3_movement;
+       socket_request(socket_message);
+
+       // # motor == 4: "Stepper Motor (clockwise):"
+       socket_message = "4," + mtr4_movement;
+       socket_request(socket_message);
+
+       // # motor == 5: "Stepper Motor (counterclockwise):"
+       socket_message = "5," + mtr5_movement;
+       socket_request(socket_message);
+
+     //Call calibration function
+     error_correct( new_pt_cart );
      return 1;
  }
 
@@ -921,22 +1047,33 @@
    // Find most recent image
    string mostRecentImage = obtainMostRecentImage();
 
+   // Save a copy of title with no extention
+   string txt_name = mostRecentImage + ".txt";
+
    // Must concatinate extention for obtainSavedImage
    mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
    obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
 
-   //Current location saved globally
-   move(kinectActual, desired_endpoint_cart);
+   // Ensure location is valid before moving, otherwise return current
+   Vec3d desired_endpoint_polar = cartesian_to_polar( desired_endpoint_cart );
 
-   // Recursively error correct until margin of error
-   error_correct(desired_endpoint_cart);
+   if ( !validLocation(desired_endpoint_polar) ) {
+     std::cout << "ERROR: Invalid location requested, returning location" << '\n';
+     return mostRecentImage;
+   }
+
+   //Current location saved globally
+   // Automatically calls error_correct to recursively error correct within a determined margin of error
+   move(kinectActual, desired_endpoint_cart);
 
    // Obtain mostRecentImage again; Updated with current location
    mostRecentImage = obtainMostRecentImage();
+   txt_name = mostRecentImage + ".txt";
 
-   //TODO: Get .txt file information that GUI needs for analysis
+   // Get .txt file information that GUI needs for analysis
+   write_intrinsics(txt_name);
 
    // Return image name to user to load
    return mostRecentImage;
