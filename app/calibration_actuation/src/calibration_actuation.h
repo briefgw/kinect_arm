@@ -426,7 +426,7 @@
    //string projectPath = "/home/tjmagnan/sd-18-hatata_magnan/calibration_actuation";
    string projectPath = "../../../collected_data/";
    string fullPath = projectPath + name.c_str();
-   printf("Attempting to open %s\n%s\n", name.c_str(), fullPath);
+   //printf("Attempting to open %s\n%s\n", name.c_str(), fullPath);
    try {
      frame = imread(fullPath);
      // frame = imread(name.c_str());
@@ -857,7 +857,7 @@ bool write_intrinsics( string name ) {
          // }
 
 // Within marvin of error calculation using MSE
-bool approxEquals (double[] u, double[] v, double errorTolerance) {
+bool approxEquals (double* u, double* v, double errorTolerance) {
   if ( u == null || v == null ) { return false; }
   if ( u.length != v.length ) { return false; }
 
@@ -876,7 +876,6 @@ bool approxEquals (double[] u, double[] v, double errorTolerance) {
 
   return false;
 }
-
 
  // Error correct
  void error_correct( Vec3d desired_endpoint ) {
@@ -928,6 +927,8 @@ bool approxEquals (double[] u, double[] v, double errorTolerance) {
 
    // (7) Required movement of upper Arm
    // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
+
+   // (8) Once movements determined divide by Karl Conversion
 
    return mtr_movements;
  }
