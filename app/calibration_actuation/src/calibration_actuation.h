@@ -854,23 +854,58 @@ bool write_intrinsics( string name ) {
          //   // open one x2 close the other
          // }
 
+// When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
+// This function returns the name of the pcl and jpg images to analyze
+string obtainMostRecentImage() {
+ string image = "";
+ // Directory path of saved images is saved globally as KinectScan_path
+
+ // List of all images in the folder
+ vector<string> files;
+ string dir = KinectScan_path;              //Not currently in use
+ dir = "../testing/winter_break_photos/";
+
+ // Alternative
+ system("./getImage.sh");   // Find the image
+
+ // Load image name from text file
+ ifstream inFile;
+
+ inFile.open("../build/mostRecent.txt");
+
+ if (!inFile) {
+    cout << "Unable to open file";
+    exit(1); // terminate with error
+ }
+
+ getline(inFile, image);
+
+ inFile.close();
+
+ // Get substring without extention
+ image = image.substr( 0, image.length() - 4 );
+ //image = image.substr( 0, image.find(".") );
+ cout << "Most recent image taken: " << image << endl;
+
+ return image;
+}
+
+
 // Within marvin of error calculation using MSE
 bool approxEquals (double* u, double* v, double errorTolerance) {
-  if ( u == null || v == null ) { return false; }
-  if ( u.length != v.length ) { return false; }
 
   double MSE = 0;
 
   // Calculate MSE
-  for ( int i = 0 ; i < u.length ; i++ ) {
+  for ( int i = 0 ; i < 3 ; i++ ) {
     double diff = u[i] - v[i];
     MSE += ( diff * diff );
   }
 
-  MSE = MSE / u.length;
+  MSE = MSE / 3;
 
   // See if within errorTolerance
-  if ( Math.abs(MSE) <= errorTolerance ) { return true; }
+  if ( abs(MSE) <= errorTolerance ) { return true; }
 
   return false;
 }
@@ -900,9 +935,9 @@ bool approxEquals (double* u, double* v, double errorTolerance) {
      return;
  }
 
- double[] get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
+ double* get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
 
-   double[] mtr_movements = new double[2];
+   double mtr_movements[2];
 
    // Get differences in r(radius)
    double r_diff = new_pt[0] - old_pt[0];
@@ -997,42 +1032,6 @@ bool approxEquals (double* u, double* v, double errorTolerance) {
      //Call calibration function
      error_correct( new_pt_cart );
      return 1;
- }
-
- // When running using KinectScan.cpp rather than obtaining live images they are already happing in the background
- // This function returns the name of the pcl and jpg images to analyze
- string obtainMostRecentImage() {
-   string image = "";
-   // Directory path of saved images is saved globally as KinectScan_path
-
-   // List of all images in the folder
-   vector<string> files;
-   string dir = KinectScan_path;              //Not currently in use
-   dir = "../testing/winter_break_photos/";
-
-   // Alternative
-   system("./getImage.sh");   // Find the image
-
-   // Load image name from text file
-   ifstream inFile;
-
-   inFile.open("../build/mostRecent.txt");
-
-   if (!inFile) {
-      cout << "Unable to open file";
-      exit(1); // terminate with error
-   }
-
-   getline(inFile, image);
-
-   inFile.close();
-
-   // Get substring without extention
-   image = image.substr( 0, image.length() - 4 );
-   //image = image.substr( 0, image.find(".") );
-   cout << "Most recent image taken: " << image << endl;
-
-   return image;
  }
 
  // Public API
