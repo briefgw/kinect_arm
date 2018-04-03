@@ -25,6 +25,10 @@
 
 #include "modelingwindow.h"
 #include "modelingwindowstyle.h"
+// Tom_Added
+#include "../../../calibration_actuation/src/calibration_actuation.h"
+
+
 
 ModelingWindowStyle::ModelingWindowStyle() {
     // initialize struct for attributes
@@ -574,6 +578,8 @@ void ModelingWindowStyle::RequestNewPose() {
     int poseNum;
     std::cin >> poseNum;
 
+    // Tom_Added
+    // TODO: Display constraints
     // TODO: Get image with x,y,z
 
     // TODO: call get image
