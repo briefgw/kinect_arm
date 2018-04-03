@@ -574,6 +574,12 @@ void ModelingWindowStyle::RequestNewPose() {
     int poseNum;
     std::cin >> poseNum;
 
+    // TODO: Get image with x,y,z
+
+    // TODO: call get image
+
+    // TODO: Get string of filename
+
     // check if pose is already displayed in either pose renderer
     if (rightPoseIdx == poseNum || poseNum == 0) {
         // prompt user and return

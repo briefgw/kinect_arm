@@ -54,6 +54,8 @@
  using namespace cv;
  using std::vector;
 
+ int move( Vec3d old_pt_cart, Vec3d new_pt_cart );
+
  /* (II) CONSTANTS */
 
  // Constants for Calibration
