@@ -54,7 +54,7 @@
  using namespace cv;
  using std::vector;
 
- int move( Vec3d old_pt_cart, Vec3d new_pt_cart );
+ int move( Vec3d, Vec3d );
 
  /* (II) CONSTANTS */
 
