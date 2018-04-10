@@ -85,9 +85,6 @@
  Vec3d kinectRVec   (0, 0, 0);  // In Euler notation NOT rotation Matrix
  Mat kinectRotationMatrix = Mat::eye(3, 3, CV_64F);
 
- // Current location of robot upon startup
- // TODO: Needed?
-
  /* (III) CREATION OF ARUCO MARKERS */
 
  // Only execute on initial installation of API
@@ -827,7 +824,7 @@ bool write_intrinsics( string name ) {
    if ( r < .69 || r > 1.045 ) { return false; }
 
    // Valid angle
-   // TODO: Later iterations can account for smaller pieces outside of this wedge
+   // Later iterations can account for smaller pieces outside of this wedge
    if ( theta < .578 || theta > 2.254 ) { return false; }
 
    // No limiter met, return true and continue to move
