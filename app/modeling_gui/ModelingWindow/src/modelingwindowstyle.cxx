@@ -579,8 +579,22 @@ void ModelingWindowStyle::RequestNewPose() {
     std::cin >> poseNum;
 
     // Tom_Added
-    // TODO: Display constraints
+    // Display constraints
+    std::cout << "Request format:" << std::endl
+              << "x,y,z :: No spaces";
+
     // TODO: Get image with x,y,z
+    string rawPose;
+    std::cin >> rawPose;
+
+    double x = rawPose.substr(0, 1);
+    double y = rawPose.substr(2, 3);
+    double z = rawPose.substr(4, 5);;
+    Vec3d position (x, y, z);
+    string pose = new_pose(position);
+    string pose_path = "../../../../collected_data/" + pose + ".png";
+    string txt_path = "../../../../collected_data/" + pose + ".txt";
+
 
     // TODO: call get image
 

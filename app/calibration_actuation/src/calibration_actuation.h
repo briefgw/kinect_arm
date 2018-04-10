@@ -85,6 +85,8 @@
  Vec3d kinectRVec   (0, 0, 0);  // In Euler notation NOT rotation Matrix
  Mat kinectRotationMatrix = Mat::eye(3, 3, CV_64F);
 
+ // Current location of robot upon startup
+ // TODO: Needed?
 
  /* (III) CREATION OF ARUCO MARKERS */
 
@@ -832,33 +834,54 @@ bool write_intrinsics( string name ) {
    return true;
  }
 
- double* get_mtr_movements( Vec3d old_pt, Vec3d new_pt ) {
+ double* get_mtr_movements( Vec3d old_pt_3d, Vec3d new_pt_3d ) {
 
    double mtr_movements[2];
 
-   // Get differences in r(radius)
-   double r_diff = new_pt[0] - old_pt[0];
+   // point for calculations (r, z)
+   Vec2d new_pt ( new_pt_3d[0] , new_pt_3d[2]);
+   Vec2d pivot ( .585, 0 );
 
-   // Get differences in z
-   double z_diff = new_pt[2] - old_pt[2];
+   // start by initating 0 values for safety check
+   mtr_movements[0] = 0;
+   mtr_movements[1] = 0;
 
-   // (1) TODO: get hypotnous from two triangles
+   // (1) get hypotnous
+   double a = new_pt[0] - pivot[0];
+   double b = new_pt[1] - pivot[1];
+   double hyp = sqrt ( a*a + b*b );
+   const double PI = 3.141592653589793;
 
-   // (2) TODO: Get origin theta in right triangles using hypotnous
+   // Angles in triangle formed using SSS formulas and laws of cosines
+   double hyp_raxis_angle = asin( b / hyp );
+   double a_hyp_angle = acos ( ( hyp*hyp + a*a - b*b ) / ( 2*hyp*a ) );
+   double b_a_angle   = acos ( ( a*a + b*b - hyp*hyp ) / ( 2*a*b ) );
 
-   // (3) TODO: Get origin theta in right trangles using lower motor arm
+   // (2) Define and calculate Angles important to motors
+   double bottom_motor_angle = 0;
+   double middle_motor_angle = b_a_angle;
 
-   // (4) TODO: theta_a = (2_old - 3_old) theta_b = (2_new - 3_new)
+   // Case 1: a > 0: arm is further out from pivot
+   if (a > 0) {
+     middle_motor_angle = hyp_raxis_angle - a_hyp_angle;
+   }
+   // Case 2: a < 0: arm is extended over the table
+   else if (a < 0) {
+     middle_motor_angle = hyp_raxis_angle + a_hyp_angle;
+   }
 
-   // (5) Required movement of lower Arm
-   // TODO: mtr_movements[0] = theta_b - theta_a;
+   // (8) Once angle determined convert to Karl to move
 
-   // (6) TODO: Get opposite thetas in robot triangle
+   // bottom conversion (25,140) - 115 range of motion
+   // Min angle of 30.8, max of 165.9, difference of 135.1, 2.3579 radians
+   double bottom_conversion = 44.78;
+   mtr_movements[1] = bottom_motor_angle * bottom_conversion + 25;
 
-   // (7) Required movement of upper Arm
-   // TODO: mtr_movements[1] = robot_arm_b - robot_arm_a;
+   // middle conversion (25, 135) - 110 range of motion
+   // Min angle of TODO, max angle of 180, difference of TODO, TODO radians
+   double middle_conversion = 1; // TODO
+   mtr_movements[0] = middle_motor_angle * middle_conversion + 25;
 
-   // (8) Once movements determined divide by Karl Conversion
 
    return mtr_movements;
  }
@@ -875,7 +898,7 @@ bool write_intrinsics( string name ) {
   dir = "../testing/winter_break_photos/";
 
   // Alternative
-  system("./getImage.sh");   // Find the image
+  system("getImage.sh");   // Find the image
 
   // Load image name from text file
   ifstream inFile;
@@ -966,14 +989,15 @@ bool write_intrinsics( string name ) {
      // Get differences in theta and move stepper motor
      double theta_diff = new_pt[1] - old_pt[1];
 
-     //Determine what the theta_diff translates to in stepper movements
+     // Determine what the theta_diff translates to in stepper movements
      // counterclockwise: Increasing theta | clockwise: decreasing theta
-     double stepperConverstion = 1; //TODO: Update Conversion
+     // 2500 stepper movements to move 360 degrees
+     double stepperConverstion = 397.89;
 
      if ( theta_diff > 0 ) {
-       mtr5_movement = (int) theta_diff/stepperConverstion;
+       mtr5_movement = (int) theta_diff * stepperConverstion;
      } else if ( theta_diff < 0 ) {
-       mtr4_movement = (int) abs(theta_diff/stepperConverstion);
+       mtr4_movement = (int) abs(theta_diff * stepperConverstion);
      }
 
      // Determine the combination of movements of other motors to get to correct r & z
@@ -1013,6 +1037,7 @@ bool write_intrinsics( string name ) {
  }
 
  // Basic functions when location isn't specified
+ // Not required for current GUI
  // Currently not implemented
          //
          // int down() {
@@ -1087,4 +1112,7 @@ bool write_intrinsics( string name ) {
    translationVectorsToOrigin.push_back(mk3);
 
    loadCameraCalibration("KinectCalibration", cameraMatrix, distanceCoefficients);
+
+   // Start Server
+   system("load_server.sh");
  }
