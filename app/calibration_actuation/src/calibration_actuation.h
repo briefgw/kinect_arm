@@ -791,7 +791,7 @@ bool write_intrinsics( string name ) {
 
  // Ensure that the final location of the Kinect Camera is within the bounds of the robotic arm
  // Refer to visual in documentation for clarifying help
- // TODO: Make sure that when converting axis reference frames and starting location of theta remain valid
+ // TODO: With tests Make sure that when converting axis reference frames and starting location of theta remain valid
  bool validLocation( Vec3d originalPolar ) {
 
    // Save values as constants for easy access
@@ -799,7 +799,9 @@ bool write_intrinsics( string name ) {
    double theta = originalPolar[1];
    double z = originalPolar[2];
 
-   // Ensure theta is valid TODO: Correct max angle in radians
+   // TODO: Make sure theta is in radians in conversion, under that assumption
+
+   // Ensure theta is valid
    // Can no ignore theta for all other calculations
    if ( theta < 0 || theta > 5.75 ) { return false; }
 
@@ -875,8 +877,8 @@ bool write_intrinsics( string name ) {
    mtr_movements[1] = bottom_motor_angle * bottom_conversion + 25;
 
    // middle conversion (25, 135) - 110 range of motion
-   // Min angle of TODO, max angle of 180, difference of TODO, TODO radians
-   double middle_conversion = 1; // TODO
+   // Min angle of 62.7, max angle of 180, difference of 117.3, 2.047 radians
+   double middle_conversion = 110/2.047;
    mtr_movements[0] = middle_motor_angle * middle_conversion + 25;
 
 
@@ -973,15 +975,15 @@ bool write_intrinsics( string name ) {
 
      // Motor values
      // # motor == 1: "Servo Gearbox:"
-     int mtr1_movement = 0;
+     int mtr1_movement = -1;
      // # motor == 2: "Linear Actuator - Middle:"
-     int mtr2_movement = 0;
+     int mtr2_movement = -1;
      // # motor == 3: "Linear Actuator - Bottom:"
-     int mtr3_movement = 0;
+     int mtr3_movement = -1;
      // # motor == 4: "Stepper Motor (clockwise):"
-     int mtr4_movement = 0;
+     int mtr4_movement = -1;
      // # motor == 5: "Stepper Motor (counterclockwise):"
-     int mtr5_movement = 0;
+     int mtr5_movement = -1;
 
      // Get differences in theta and move stepper motor
      double theta_diff = new_pt[1] - old_pt[1];
@@ -1005,31 +1007,46 @@ bool write_intrinsics( string name ) {
 
     // TODO: Figure out final angle for servo motor to get a good view
       // How...
+      // Build triangle with the pivot point, origin and end of the camera
+      // Try to
 
      // Iniate Socket communication and Call Karl's API to move points
      string socket_message = "";
-       // # motor == 1: "Servo Gearbox:"
+     // # motor == 1: "Servo Gearbox:"
+     if ( mtr1_movement != -1 ) {
        socket_message = "1," + mtr1_movement;
        socket_request(socket_message);
+     }
 
-       // # motor == 2: "Linear Actuator - Middle:"
+     // # motor == 2: "Linear Actuator - Middle:"
+     if ( mtr2_movement != -1 ) {
        socket_message = "2," + mtr2_movement;
        socket_request(socket_message);
+     }
 
-       // # motor == 3: "Linear Actuator - Bottom:"
+     // # motor == 3: "Linear Actuator - Bottom:"
+     if ( mtr3_movement != -1 ) {
        socket_message = "3," + mtr3_movement;
        socket_request(socket_message);
+     }
 
-       // # motor == 4: "Stepper Motor (clockwise):"
+     // # motor == 4: "Stepper Motor (clockwise):"
+     if ( mtr4_movement != -1 ) {
        socket_message = "4," + mtr4_movement;
        socket_request(socket_message);
+     }
 
-       // # motor == 5: "Stepper Motor (counterclockwise):"
+     // # motor == 5: "Stepper Motor (counterclockwise):"
+     if ( mtr5_movement != -1 ) {
        socket_message = "5," + mtr5_movement;
        socket_request(socket_message);
+     }
 
      //Call calibration function
-     error_correct( new_pt_cart );
+
+     // TODO: Error_correct not being called currently due to quality of location determination for this testing
+     // Currently not important that it ends up exactly where it needed to, just general, and then proper location returned
+     // error_correct( new_pt_cart );
      return 1;
  }
 
@@ -1108,8 +1125,13 @@ bool write_intrinsics( string name ) {
    translationVectorsToOrigin.push_back(mk2);
    translationVectorsToOrigin.push_back(mk3);
 
+   // TODO: Ensure it can find file if called from somewhere else
+   // TODO: Call a script to change directory
    loadCameraCalibration("KinectCalibration", cameraMatrix, distanceCoefficients);
 
    // Start Server
    system("load_server.sh");
+
+   // TODO: Change directory back
+
  }
