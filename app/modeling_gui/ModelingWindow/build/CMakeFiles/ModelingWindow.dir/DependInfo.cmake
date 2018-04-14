@@ -73,6 +73,8 @@ SET(CMAKE_C_TARGET_INCLUDE_PATH
   "/home/workstation5/workplace/source/VTK5.10.1/Utilities/vtkalglib"
   "../libs"
   "../src"
+  "/usr/local/include"
+  "/usr/local/include/opencv"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
 SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

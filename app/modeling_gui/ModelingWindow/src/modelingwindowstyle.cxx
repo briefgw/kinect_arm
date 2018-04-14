@@ -28,8 +28,6 @@
 // Tom_Added
 #include "../../../calibration_actuation/src/calibration_actuation.h"
 
-
-
 ModelingWindowStyle::ModelingWindowStyle() {
     // initialize struct for attributes
     attributes = new WindowStyleAttributes();
@@ -72,6 +70,9 @@ ModelingWindowStyle::ModelingWindowStyle() {
 
     // add to vector of poses
     poses.push_back(data);
+
+    // Tom added Load camera calibration information
+    load();
 }
 
 void ModelingWindowStyle::OnLeftButtonDown() {
@@ -379,7 +380,14 @@ void ModelingWindowStyle::DrawPointOntoImage() {
     // map poly data to its own mapper
     vtkSmartPointer<vtkPolyDataMapper> mapper =
         vtkSmartPointer<vtkPolyDataMapper>::New();
+
+    // Tom Added
+    #if (VTK_MAJOR_VERSION < 6)
+    mapper->SetInput(data->polyData);
+    #else
     mapper->SetInputData(data->polyData);
+    #endif
+    // Tom end
 
     // initialize actor and set mapper
     data->actor = vtkSmartPointer<vtkActor>::New();
@@ -578,27 +586,23 @@ void ModelingWindowStyle::RequestNewPose() {
     int poseNum;
     std::cin >> poseNum;
 
-    // Tom_Added
+    // Tom Added
     // Display constraints
     std::cout << "Request format:" << std::endl
-              << "x,y,z :: No spaces";
+              << "x,y,z :: No spaces: ";
 
-    // TODO: Get image with x,y,z
-    string rawPose;
+    // Get image with x,y,z
+    std::string rawPose;
     std::cin >> rawPose;
+    rawPose = rawPose.c_str();
 
-    double x = rawPose.substr(0, 1);
-    double y = rawPose.substr(2, 3);
-    double z = rawPose.substr(4, 5);;
+    double x = atof(rawPose.substr(0, 1).c_str());
+    double y = atof(rawPose.substr(2, 3).c_str());
+    double z = atof(rawPose.substr(4, 5).c_str());
     Vec3d position (x, y, z);
-    string pose = new_pose(position);
-    string pose_path = "../../../../collected_data/" + pose + ".png";
-    string txt_path = "../../../../collected_data/" + pose + ".txt";
-
-
-    // TODO: call get image
-
-    // TODO: Get string of filename
+    std::string pose = new_pose(position);
+    std::string pose_path = "../../../../collected_data/" + pose + ".png";
+    std::string txt_path = "../../../../collected_data/" + pose + ".txt";
 
     // check if pose is already displayed in either pose renderer
     if (rightPoseIdx == poseNum || poseNum == 0) {
@@ -637,10 +641,18 @@ void ModelingWindowStyle::RequestNewPose() {
         // create new pose using pose #
         CreateNewPose(poseNum);
     } else {
+        vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
+
+        // read image by setting filename
+        reader->SetFileName(pose_path.c_str());
+
+        // update reader
+        reader->Update();
+
         // create image actor to display new pose in right image renderer
         vtkSmartPointer<vtkImageActor> imageActor =
             vtkSmartPointer<vtkImageActor>::New();
-        imageActor->GetMapper()->SetInputConnection(attributes->readers[poseNum]->GetOutputPort());
+        imageActor->GetMapper()->SetInputConnection(reader->GetOutputPort());
 
         // set image actor's z coordinate (z = -100)
         imageActor->SetPosition(imageActor->GetPosition()[0],
@@ -924,7 +936,8 @@ void ModelingWindowStyle::DeselectActor() {
 vtkSmartPointer<vtkMatrix4x4> ModelingWindowStyle::GetMatrix(std::string fileName) {
     // vars to read text files
     std::string line;
-    ifstream file (fileName);
+    // Tom added
+    ifstream file (fileName.c_str());
 
     // vars to represent t vector and r matrix
     double tVector[3];

@@ -103,7 +103,7 @@ struct WindowStyleAttributes {
     std::map<int,vtkRenderer*> rendererMap;
 
     // PNG readers
-    std::vector<vtkSmartPointer<vtkPNGReader>> readers;
+    std::vector< vtkSmartPointer<vtkPNGReader> > readers;
 };
 
 class ModelingWindowStyle : public vtkInteractorStyleTrackballActor {
@@ -167,7 +167,7 @@ class ModelingWindowStyle : public vtkInteractorStyleTrackballActor {
 
         // Setter for renderer map
         void SetRendererMap(std::map<int,vtkRenderer*> map);
-        void SetReaders(std::vector<vtkSmartPointer<vtkPNGReader>> pngReaders);
+        void SetReaders(std::vector< vtkSmartPointer<vtkPNGReader> > pngReaders);
 
     private:
         // window attributes

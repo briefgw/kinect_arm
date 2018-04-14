@@ -43,7 +43,6 @@
  #include <sys/types.h>
  #include <dirent.h>
  #include <errno.h>
- #include <iostream>
  /*
  #include<stdio.h>      //printf
  #include<string.h>     //strlen    // Might need these for the socket communication if not working.
@@ -363,6 +362,7 @@
    */
 
    Rodrigues(rotationVectors[0], kinectRotationMatrix); // TODO: Remove when average found
+
    Rodrigues(kinectRotationMatrix, kinectRVec);
 
    // translationVectors have the marker coordinates system transformed to the kinect
@@ -425,7 +425,7 @@
 
    // Opening Image
    //string projectPath = "/home/tjmagnan/sd-18-hatata_magnan/calibration_actuation";
-   string projectPath = "../../../collected_data/";
+   string projectPath = "../../../../collected_data/";
    string fullPath = projectPath + name.c_str();
    //printf("Attempting to open %s\n%s\n", name.c_str(), fullPath);
    try {
@@ -730,7 +730,7 @@
 bool write_intrinsics( string name ) {
 
   // Call script to cd to file with images
-  system("ChangeToImageDirectory.sh");
+  system("../src/ChangeToImageDirectory.sh");
 
   ofstream outStream;
   outStream.open(name.c_str());
@@ -764,7 +764,7 @@ bool write_intrinsics( string name ) {
     outStream.close();
 
     //Call script to move file change directories back
-    system("ChangeToSRCDirectory.sh");
+    system("../src/ChangeToSRCDirectory.sh");
     return true;
   }
   return false;
@@ -889,15 +889,8 @@ bool write_intrinsics( string name ) {
  // This function returns the name of the pcl and jpg images to analyze
  string obtainMostRecentImage() {
   string image = "";
-  // Directory path of saved images is saved globally as KinectScan_path
 
-  // List of all images in the folder
-  vector<string> files;
-  string dir = KinectScan_path;              //Not currently in use
-  dir = "../testing/winter_break_photos/";
-
-  // Alternative
-  system("getImage.sh");   // Find the image
+  system("../src/getImage.sh");   // Find the image
 
   // Load image name from text file
   ifstream inFile;
@@ -954,7 +947,7 @@ bool write_intrinsics( string name ) {
      mostRecentImage = mostRecentImage + ".png";
 
      // Analyze mostRecentImage
-     obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
+     obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
 
      // Margin of error mesuring
      // If within, simply return | else continue
@@ -1079,7 +1072,7 @@ bool write_intrinsics( string name ) {
 
  // Public API
  // Takes in a desired endpoint, determines the current location and returns the string of the name of the image from that pose (jpg and pcl)
- // user can manually pull kinectActual from global after running new_pose()
+ // Note: user can manually pull kinectActual from global after running new_pose()
  string new_pose( Vec3d desired_endpoint_cart ) {
 
    // Find most recent image
@@ -1092,7 +1085,7 @@ bool write_intrinsics( string name ) {
    mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
-   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, true);
+   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
 
    // Ensure location is valid before moving, otherwise return current
    Vec3d desired_endpoint_polar = cartesian_to_polar( desired_endpoint_cart );
@@ -1118,7 +1111,7 @@ bool write_intrinsics( string name ) {
  }
 
  //Initial calls within any running instance
- void load(int argc, char** argv) {
+ void load() {
    // Add elements to translationVectorsToOrigin vector
    translationVectorsToOrigin.push_back(mk0);
    translationVectorsToOrigin.push_back(mk1);
@@ -1130,7 +1123,7 @@ bool write_intrinsics( string name ) {
    loadCameraCalibration("KinectCalibration", cameraMatrix, distanceCoefficients);
 
    // Start Server
-   system("load_server.sh");
+   system("../src/load_server.sh");
 
    // TODO: Change directory back
 

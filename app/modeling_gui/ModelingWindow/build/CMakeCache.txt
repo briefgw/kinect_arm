@@ -176,6 +176,9 @@ ModelingWindow_BINARY_DIR:STATIC=/home/workstation5/Tom/cameraarm/app/modeling_g
 //Value Computed by CMake
 ModelingWindow_SOURCE_DIR:STATIC=/home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow
 
+//The directory containing a CMake configuration file for OpenCV.
+OpenCV_DIR:PATH=/usr/local/share/OpenCV
+
 //Location of Tcl library imported from VTK.  This may mean your
 // project is depending on VTK to get this setting.  Consider using
 // FindTCL.cmake.
@@ -323,6 +326,8 @@ CMAKE_UNAME:INTERNAL=/bin/uname
 CMAKE_USE_RELATIVE_PATHS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding OpenCV
+FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr/local][v3.3.0()]
 //ADVANCED property for variable: TCL_LIBRARY
 TCL_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: TK_LIBRARY
