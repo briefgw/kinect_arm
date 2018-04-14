@@ -1085,7 +1085,8 @@ bool write_intrinsics( string name ) {
    mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
-   obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
+   // TODO: Issue recognizing tags
+   // obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
 
    // Ensure location is valid before moving, otherwise return current
    Vec3d desired_endpoint_polar = cartesian_to_polar( desired_endpoint_cart );

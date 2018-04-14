@@ -588,21 +588,30 @@ void ModelingWindowStyle::RequestNewPose() {
 
     // Tom Added
     // Display constraints
-    std::cout << "Request format:" << std::endl
-              << "x,y,z :: No spaces: ";
+    std::cout << "Valid X-Range []" << std::endl
+              << "x: ";
+    std::string raw_x;
+    std::cin >> raw_x;
 
-    // Get image with x,y,z
-    std::string rawPose;
-    std::cin >> rawPose;
-    rawPose = rawPose.c_str();
+    std::cout << "Valid Y-Range []" << std::endl
+              << "y: ";
+    std::string raw_y;
+    std::cin >> raw_y;
 
-    double x = atof(rawPose.substr(0, 1).c_str());
-    double y = atof(rawPose.substr(2, 3).c_str());
-    double z = atof(rawPose.substr(4, 5).c_str());
+    std::cout << "Valid Z-Range []" << std::endl
+              << "z: ";
+    std::string raw_z;
+    std::cin >> raw_z;
+
+    double x = atof(raw_x.c_str());
+    double y = atof(raw_y.c_str());
+    double z = atof(raw_z.c_str());
+
     Vec3d position (x, y, z);
     std::string pose = new_pose(position);
-    std::string pose_path = "../../../../collected_data/" + pose + ".png";
+    std::string pose_path = "../../../../collected_data/" + pose;
     std::string txt_path = "../../../../collected_data/" + pose + ".txt";
+
 
     // check if pose is already displayed in either pose renderer
     if (rightPoseIdx == poseNum || poseNum == 0) {
@@ -670,7 +679,9 @@ void ModelingWindowStyle::RequestNewPose() {
         this->Interactor->Render();
 
         // create new pose
-        CreateNewPose(poseNum);
+        //CreateNewPose(poseNum);
+
+        cout << "exit gets here" << endl;
     }
 
     // update right pose idx
