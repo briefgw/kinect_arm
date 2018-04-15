@@ -612,6 +612,8 @@ void ModelingWindowStyle::RequestNewPose() {
     std::string pose_path = "../../../../collected_data/" + pose;
     std::string txt_path = "../../../../collected_data/" + pose + ".txt";
 
+    // Testing loading Kinect Actual Data
+    cout << "Kinect Location: " << endl;
 
     // check if pose is already displayed in either pose renderer
     if (rightPoseIdx == poseNum || poseNum == 0) {
@@ -678,10 +680,8 @@ void ModelingWindowStyle::RequestNewPose() {
         attributes->rendererMap[10]->ResetCamera();
         this->Interactor->Render();
 
-        // create new pose
+        // create new pose (Do not display when getting image from API)
         //CreateNewPose(poseNum);
-
-        cout << "exit gets here" << endl;
     }
 
     // update right pose idx

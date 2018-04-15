@@ -729,6 +729,8 @@
 // Write camera intrinsics to file for Tarek to pull
 bool write_intrinsics( string name ) {
 
+  cout << endl << "Writing intrinsics data values to the txt file" << endl;
+
   // Call script to cd to file with images
   system("../src/ChangeToImageDirectory.sh");
 
@@ -763,8 +765,8 @@ bool write_intrinsics( string name ) {
 
     outStream.close();
 
-    //Call script to move file change directories back
-    system("../src/ChangeToSRCDirectory.sh");
+    // Call script to move file change directories back
+    // system("../src/ChangeToSRCDirectory.sh");
     return true;
   }
   return false;
@@ -890,6 +892,8 @@ bool write_intrinsics( string name ) {
  string obtainMostRecentImage() {
   string image = "";
 
+  cout << endl << "Entering obtainMostRecentImage to obtain live Kinect Data" << endl;
+
   system("../src/getImage.sh");   // Find the image
 
   // Load image name from text file
@@ -961,6 +965,9 @@ bool write_intrinsics( string name ) {
  // Move to location
  // Takes in cartesian coordinates
  int move( Vec3d old_pt_cart, Vec3d new_pt_cart ) {
+
+    cout << endl << "Entering Move function to begin actuation" << endl;
+
      // Find polar coordinates for analysis
      Vec3d new_pt, old_pt;
      old_pt = cartesian_to_polar(old_pt_cart);
@@ -1085,7 +1092,6 @@ bool write_intrinsics( string name ) {
    mostRecentImage = mostRecentImage + ".png";
 
    // Analyze mostRecentImage
-   // TODO: Issue recognizing tags
    obtainSavedImage(mostRecentImage, cameraMatrix, distanceCoefficients, false);
 
    // Ensure location is valid before moving, otherwise return current
@@ -1093,12 +1099,14 @@ bool write_intrinsics( string name ) {
 
    if ( !validLocation(desired_endpoint_polar) ) {
      std::cout << "ERROR: Invalid location requested, returning location" << '\n';
-     return mostRecentImage;
+     // TODO: Uncomment when other functions tested
+     // return mostRecentImage;
    }
 
-   //Current location saved globally
+   // Current location saved globally
    // Automatically calls error_correct to recursively error correct within a determined margin of error
-   move(kinectActual, desired_endpoint_cart);
+   // TODO: Uncomment when other functions tested
+   // move(kinectActual, desired_endpoint_cart);
 
    // Obtain mostRecentImage again; Updated with current location
    mostRecentImage = obtainMostRecentImage();
@@ -1119,13 +1127,8 @@ bool write_intrinsics( string name ) {
    translationVectorsToOrigin.push_back(mk2);
    translationVectorsToOrigin.push_back(mk3);
 
-   // TODO: Ensure it can find file if called from somewhere else
-   // TODO: Call a script to change directory
    loadCameraCalibration("KinectCalibration", cameraMatrix, distanceCoefficients);
 
    // Start Server
-   system("../src/load_server.sh");
-
-   // TODO: Change directory back
-
+   // system("../src/load_server.sh");
  }

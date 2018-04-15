@@ -27,13 +27,13 @@ import socket #TODO Tom make sure it works
 
 import os, sys
 pwd = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(pwd+"/../../src/")
+sys.path.append(pwd+"/../../../src/")
 from motorServerClient import *
 
 
 # Location of the bash script to run. scan.sh takes an optional argument that specifies the folder for placing scans.
 # scans are placed in CameraArm/collected_data/
-SCAN_SCRIPT = pwd+"/../../src/Kinect_code/scan.sh"
+SCAN_SCRIPT = pwd+"/../../../src/Kinect_code/scan.sh"
 folder = "output" # default scan location
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +75,7 @@ direction = "counterclockwise" # clockwise / counterclockwise
 
 # Tarek's box
 num_steps = 1500
-motor1_value = 79
+motor1_value = 50 #Change back to 79 later
 motor2_value = 25
 motor3_value = 80
 
@@ -95,7 +95,7 @@ def main():
 
 	# Opening monologue
 	print UNDERLINE_GREEN+"                                                                        "+NC
-	print UNDERLINE_GREEN+"                     Welcome to Karl's greedy scan!                     "+NC
+	print UNDERLINE_GREEN+"Initiating Connection with RPi                     "+NC
 	print BLUE+"Before we begin, complete these steps:"+NC
 	print "    1. Plug RPi and Kinect camera into power. Wait 20 seconds."
 	print "    2. Plug RPi into this computer via ethernet cable."

@@ -32,12 +32,10 @@ MAGENTA="\033[0;35m"
 NC="\033[0m"
 
 # move to location where we will store files from scan
-#cd /home/workstation5/workplace/source/cameraarm/collected_data
-
-cd /home/john/cameraarm/collected_data
+cd /home/workstation5/Tom/cameraarm
 
 argv="$1" # get first argument
-directory="output"
+directory="collected_data"
 
 if [ "$argv" == "" ]; then
 	echo -e "${MAGENTA}Overwriting default scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC} \nNOTE: existing scan files will be overwritten."
@@ -69,7 +67,7 @@ killall XnSensorServer
 
 # Begin scan
 echo -e -n "\n${BLUE}Start camera feed:${NC}"
-/home/john/cameraarm/src/Kinect_code/build/KinectScan &
+/home/workstation5/Tom/cameraarm/src/Kinect_code/build/KinectScan &
 scanPID=$!
 
 # wait for command from stdin to stop scanning.
@@ -97,4 +95,4 @@ else
 fi
 
 echo -e "${BLUE}Finished scanning images.${NC}"
-echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/collected_data/${MAGENTA}$directory'${NC}"
+echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/${MAGENTA}$directory'${NC}"
