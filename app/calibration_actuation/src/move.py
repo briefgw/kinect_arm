@@ -34,7 +34,7 @@ from motorServerClient import *
 # Location of the bash script to run. scan.sh takes an optional argument that specifies the folder for placing scans.
 # scans are placed in CameraArm/collected_data/
 SCAN_SCRIPT = pwd+"/../../../src/Kinect_code/scan.sh"
-folder = "output" # default scan location
+folder = "collected_data" # default scan location
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

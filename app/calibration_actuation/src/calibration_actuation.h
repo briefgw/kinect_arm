@@ -480,9 +480,12 @@
 
    // Perform analysis and determine actual location
    printf("Desired image aquired and markers found. Continuing to analyse image...\n");
-   analyzeFrame( markerCorners, rotationVectors, translationVectors, markerIds );
-
-   return 1;
+   if ( markerIds.size() > 0 ) {
+     analyzeFrame( markerCorners, rotationVectors, translationVectors, markerIds );
+     return 1;
+   } else {
+     cout << "ERROR: Unable to detect any markers, location cannot be determined" << endl;
+   }
  }
 
  /* (VIII) OBTAINING LIVE IMAGE FOR ANALYSIS */
@@ -915,6 +918,13 @@ bool write_intrinsics( string name ) {
   //image = image.substr( 0, image.find(".") );
   cout << "Most recent image taken: " << image << endl;
 
+  // Before returning convert current PCD to PNG
+  cout << "Converting " << image << ".pcd to " << image << ".png"  << endl;
+
+  string command = "../../../calibration_actuation/src/convertPNG/convert_png ../../../../collected_data/"+ image + ".pcd ../../../../collected_data/" + image + ".png";
+
+  system(command.c_str());
+
   return image;
  }
 
@@ -1107,6 +1117,7 @@ bool write_intrinsics( string name ) {
    // Automatically calls error_correct to recursively error correct within a determined margin of error
    // TODO: Uncomment when other functions tested
    // move(kinectActual, desired_endpoint_cart);
+   socket_request("1,80");
 
    // Obtain mostRecentImage again; Updated with current location
    mostRecentImage = obtainMostRecentImage();
