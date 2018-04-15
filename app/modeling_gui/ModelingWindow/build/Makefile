@@ -138,6 +138,30 @@ src/ModelingMain.cxx.s:
 	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/src/ModelingMain.cxx.s
 .PHONY : src/ModelingMain.cxx.s
 
+src/calibration_actuation.o: src/calibration_actuation.cxx.o
+.PHONY : src/calibration_actuation.o
+
+# target to build an object file
+src/calibration_actuation.cxx.o:
+	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o
+.PHONY : src/calibration_actuation.cxx.o
+
+src/calibration_actuation.i: src/calibration_actuation.cxx.i
+.PHONY : src/calibration_actuation.i
+
+# target to preprocess a source file
+src/calibration_actuation.cxx.i:
+	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.i
+.PHONY : src/calibration_actuation.cxx.i
+
+src/calibration_actuation.s: src/calibration_actuation.cxx.s
+.PHONY : src/calibration_actuation.s
+
+# target to generate assembly for a file
+src/calibration_actuation.cxx.s:
+	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.s
+.PHONY : src/calibration_actuation.cxx.s
+
 src/modelingwindow.o: src/modelingwindow.cxx.o
 .PHONY : src/modelingwindow.o
 
@@ -198,6 +222,9 @@ help:
 	@echo "... src/ModelingMain.o"
 	@echo "... src/ModelingMain.i"
 	@echo "... src/ModelingMain.s"
+	@echo "... src/calibration_actuation.o"
+	@echo "... src/calibration_actuation.i"
+	@echo "... src/calibration_actuation.s"
 	@echo "... src/modelingwindow.o"
 	@echo "... src/modelingwindow.i"
 	@echo "... src/modelingwindow.s"

@@ -83,7 +83,7 @@ motor3_value = 80
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def main():
-	folder = "output"
+	folder = "collected_data"
 	if len(sys.argv) > 1: # if folder is specified
 		folder = sys.argv[1]
 

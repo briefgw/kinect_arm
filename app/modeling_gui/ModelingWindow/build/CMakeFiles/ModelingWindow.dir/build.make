@@ -121,11 +121,35 @@ CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o.provides: CMakeFiles
 
 CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o.provides.build: CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o
 
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o: CMakeFiles/ModelingWindow.dir/flags.make
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o: ../src/calibration_actuation.cxx
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles $(CMAKE_PROGRESS_4)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o -c /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/src/calibration_actuation.cxx
+
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/src/calibration_actuation.cxx > CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.i
+
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/src/calibration_actuation.cxx -o CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.s
+
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.requires:
+.PHONY : CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.requires
+
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.provides: CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.requires
+	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.provides.build
+.PHONY : CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.provides
+
+CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.provides.build: CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o
+
 # Object files for target ModelingWindow
 ModelingWindow_OBJECTS = \
 "CMakeFiles/ModelingWindow.dir/src/ModelingMain.cxx.o" \
 "CMakeFiles/ModelingWindow.dir/src/modelingwindow.cxx.o" \
-"CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o"
+"CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o" \
+"CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o"
 
 # External object files for target ModelingWindow
 ModelingWindow_EXTERNAL_OBJECTS =
@@ -133,21 +157,22 @@ ModelingWindow_EXTERNAL_OBJECTS =
 ModelingWindow: CMakeFiles/ModelingWindow.dir/src/ModelingMain.cxx.o
 ModelingWindow: CMakeFiles/ModelingWindow.dir/src/modelingwindow.cxx.o
 ModelingWindow: CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o
+ModelingWindow: CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o
 ModelingWindow: CMakeFiles/ModelingWindow.dir/build.make
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkCommon.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkFiltering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkImaging.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkGraphics.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkGenericFiltering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkIO.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkRendering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkVolumeRendering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkHybrid.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkWidgets.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkInfovis.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkGeovis.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkViews.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkCharts.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkCommon.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkFiltering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkImaging.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkGraphics.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkGenericFiltering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkIO.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkRendering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkVolumeRendering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkHybrid.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkWidgets.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkInfovis.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkGeovis.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkViews.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkCharts.a
 ModelingWindow: /usr/local/lib/libopencv_calib3d.so.3.3.0
 ModelingWindow: /usr/local/lib/libopencv_core.so.3.3.0
 ModelingWindow: /usr/local/lib/libopencv_dnn.so.3.3.0
@@ -192,43 +217,43 @@ ModelingWindow: /usr/local/lib/libopencv_xfeatures2d.so.3.3.0
 ModelingWindow: /usr/local/lib/libopencv_ximgproc.so.3.3.0
 ModelingWindow: /usr/local/lib/libopencv_xobjdetect.so.3.3.0
 ModelingWindow: /usr/local/lib/libopencv_xphoto.so.3.3.0
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkproj4.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkViews.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkInfovis.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkWidgets.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkVolumeRendering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkHybrid.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkRendering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkImaging.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkGraphics.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkverdict.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkIO.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkFiltering.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkCommon.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkDICOMParser.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkNetCDF_cxx.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libLSDyna.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtksys.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkmetaio.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtksqlite.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkpng.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtktiff.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkjpeg.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkexpat.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkproj4.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkViews.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkInfovis.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkWidgets.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkVolumeRendering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkHybrid.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkRendering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkImaging.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkGraphics.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkverdict.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkIO.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkFiltering.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkCommon.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkDICOMParser.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkNetCDF_cxx.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libLSDyna.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtksys.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkmetaio.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtksqlite.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkpng.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtktiff.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkjpeg.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkexpat.a
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libXt.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libSM.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libICE.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libX11.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libXext.so
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkexoIIc.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkNetCDF.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkhdf5_hl.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkhdf5.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtklibxml2.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkzlib.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkalglib.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkftgl.a
-ModelingWindow: /home/workstation5/workplace/source/VTK5.10.1/build/bin/libvtkfreetype.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkexoIIc.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkNetCDF.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkhdf5_hl.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkhdf5.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtklibxml2.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkzlib.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkalglib.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkftgl.a
+ModelingWindow: /usr/local/lib/vtk-5.10/libvtkfreetype.a
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libGL.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libQtGui.so
 ModelingWindow: /usr/lib/x86_64-linux-gnu/libQtSql.so
@@ -263,6 +288,7 @@ CMakeFiles/ModelingWindow.dir/build: ModelingWindow
 CMakeFiles/ModelingWindow.dir/requires: CMakeFiles/ModelingWindow.dir/src/ModelingMain.cxx.o.requires
 CMakeFiles/ModelingWindow.dir/requires: CMakeFiles/ModelingWindow.dir/src/modelingwindow.cxx.o.requires
 CMakeFiles/ModelingWindow.dir/requires: CMakeFiles/ModelingWindow.dir/src/modelingwindowstyle.cxx.o.requires
+CMakeFiles/ModelingWindow.dir/requires: CMakeFiles/ModelingWindow.dir/src/calibration_actuation.cxx.o.requires
 .PHONY : CMakeFiles/ModelingWindow.dir/requires
 
 CMakeFiles/ModelingWindow.dir/clean:

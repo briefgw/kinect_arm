@@ -25,8 +25,7 @@
 
 #include "modelingwindow.h"
 #include "modelingwindowstyle.h"
-// Tom_Added
-#include "../../../calibration_actuation/src/calibration_actuation.h"
+#include "calibration_actuation.h"
 
 ModelingWindowStyle::ModelingWindowStyle() {
     // initialize struct for attributes
@@ -70,9 +69,6 @@ ModelingWindowStyle::ModelingWindowStyle() {
 
     // add to vector of poses
     poses.push_back(data);
-
-    // Tom added Load camera calibration information
-    load();
 }
 
 void ModelingWindowStyle::OnLeftButtonDown() {
@@ -579,15 +575,15 @@ ObjectData *ModelingWindowStyle::GetObject(vtkSmartPointer<vtkActor> actor) {
 
 void ModelingWindowStyle::RequestNewPose() {
     // print the request string to the console
-    std::cout << "New Pose Request!" << std::endl
-              << "Please enter pose number: ";
+    // std::cout << "New Pose Request!" << std::endl
+    //           << "Please enter pose number: ";
 
     // get pose number from input
-    int poseNum;
-    std::cin >> poseNum;
+    int poseNum = 1;
+    // std::cin >> poseNum;
 
     // Tom Added
-    // Display constraints
+    // Request new pose via the console
     std::cout << "Valid X-Range []" << std::endl
               << "x: ";
     std::string raw_x;
@@ -608,12 +604,10 @@ void ModelingWindowStyle::RequestNewPose() {
     double z = atof(raw_z.c_str());
 
     Vec3d position (x, y, z);
-    std::string pose = new_pose(position);
-    std::string pose_path = "../../../../collected_data/" + pose;
+    calibration_actuation ca;
+    std::string pose = ca.new_pose(position);
+    std::string pose_path = "../../../../collected_data/" + pose + ".png" ;
     std::string txt_path = "../../../../collected_data/" + pose + ".txt";
-
-    // Testing loading Kinect Actual Data
-    cout << "Kinect Location: " << endl;
 
     // check if pose is already displayed in either pose renderer
     if (rightPoseIdx == poseNum || poseNum == 0) {

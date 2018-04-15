@@ -10,8 +10,8 @@ include(${VTK_USE_FILE})
 include_directories(${PROJECT_SOURCE_DIR}/libs)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-set(HEADERS ${PROJECT_SOURCE_DIR}/libs/modelingwindow.h ${PROJECT_SOURCE_DIR}/libs/modelingwindowstyle.h)
-set(SOURCES ${PROJECT_SOURCE_DIR}/src/ModelingMain.cxx ${PROJECT_SOURCE_DIR}/src/modelingwindow.cxx ${PROJECT_SOURCE_DIR}/src/modelingwindowstyle.cxx)
+set(HEADERS ${PROJECT_SOURCE_DIR}/libs/modelingwindow.h ${PROJECT_SOURCE_DIR}/libs/modelingwindowstyle.h ${PROJECT_SOURCE_DIR}/libs/calibration_actuation.h)
+set(SOURCES ${PROJECT_SOURCE_DIR}/src/ModelingMain.cxx ${PROJECT_SOURCE_DIR}/src/modelingwindow.cxx ${PROJECT_SOURCE_DIR}/src/modelingwindowstyle.cxx ${PROJECT_SOURCE_DIR}/src/calibration_actuation.cxx)
 
 add_executable(ModelingWindow MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 

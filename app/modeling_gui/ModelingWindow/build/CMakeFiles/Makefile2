@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWin
 CMakeFiles/ModelingWindow.dir/all:
 	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/depend
 	$(MAKE) -f CMakeFiles/ModelingWindow.dir/build.make CMakeFiles/ModelingWindow.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles  1 2 3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles  1 2 3 4
 	@echo "Built target ModelingWindow"
 .PHONY : CMakeFiles/ModelingWindow.dir/all
 
@@ -72,7 +72,7 @@ all: CMakeFiles/ModelingWindow.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ModelingWindow.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ModelingWindow.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/workstation5/Tom/cameraarm/app/modeling_gui/ModelingWindow/build/CMakeFiles 0
 .PHONY : CMakeFiles/ModelingWindow.dir/rule

@@ -12,6 +12,7 @@
 
 #include "modelingwindow.h"
 #include "modelingwindowstyle.h"
+#include "calibration_actuation.h"
 
 ModelingWindow::ModelingWindow(int numImages) {
     // array for size of the window
@@ -29,7 +30,24 @@ ModelingWindow::ModelingWindow(int numImages) {
     std::map<int,vtkRenderer*> rendererMap;
 
     // create renderer for the image (display first pose)
-    vtkSmartPointer<vtkRenderer> imageRenderer = CreateImageRenderer(readers[0]);
+    // Tom added TODO: Update initial_position values
+    Vec3d initial_position (0, -.65, .75);
+    calibration_actuation ca;
+    std::string pose = ca.new_pose(initial_position);
+    std::string pose_path = "../../../../collected_data/" + pose + ".png" ;
+    std::string txt_path = "../../../../collected_data/" + pose + ".txt";
+    vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
+
+    // read image by setting filename
+    reader->SetFileName(pose_path.c_str());
+
+    // update reader
+    reader->Update();
+
+    vtkSmartPointer<vtkRenderer> imageRenderer = CreateImageRenderer(reader);
+    // End Tom
+
+    // vtkSmartPointer<vtkRenderer> imageRenderer = CreateImageRenderer(readers[0]);
     renderWindow->AddRenderer(imageRenderer);
     rendererMap[0] = imageRenderer;
 
