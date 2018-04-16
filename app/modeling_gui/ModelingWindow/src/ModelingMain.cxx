@@ -1,6 +1,7 @@
 #include "modelingwindowstyle.h"
 #include "modelingwindow.h"
 #include <vtkObjectFactory.h>
+#include <unistd.h>
 
 // Tom_Added
 
@@ -62,6 +63,11 @@ int main(int argc, char *argv[])
 
     // convert string to integer for number of images
     int numImages = atoi(argv[1]);
+
+    // Initiate script to connect to camera and create folder directory
+    system("./../src/move.py &");
+    std::cout << "Please allow 30 seconds for the robot to setup" << std::endl;
+    sleep(30);
 
     // create new window with numImages as parameter
     ModelingWindow *window = new ModelingWindow(numImages);

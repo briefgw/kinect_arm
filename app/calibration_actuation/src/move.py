@@ -106,7 +106,7 @@ def main():
 	print BLUE+"Once you have completed these steps, press "+GREEN+"\"Enter\""+BLUE+" or exit with "+GREEN+"\"Ctrl+C\""+NC
 	print UNDERLINE_GREEN+"                                                                        "+NC
 
-	raw_input()
+	//raw_input()
 
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
