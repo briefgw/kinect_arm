@@ -32,13 +32,13 @@ MAGENTA="\033[0;35m"
 NC="\033[0m"
 
 # move to location where we will store files from scan
-cd /home/workstation5/Tom/cameraarm
+cd /home/workstation5/workplace/data
 
 argv="$1" # get first argument
 directory="collected_data"
 
 if [ "$argv" == "" ]; then
-	echo -e "${MAGENTA}Overwriting default scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC} \nNOTE: existing scan files will be overwritten."
+	echo -e "${MAGENTA}Overwriting default scan file destination: \n${GREEN}'/home/workstation5/workplace/data/${MAGENTA}$directory'${NC} \nNOTE: existing scan files will be overwritten."
 	if [ -d "$directory" ]; then
 		rm -rf $directory
 	fi
@@ -47,13 +47,13 @@ if [ "$argv" == "" ]; then
 
 elif [ ! -d "$argv" ]; then
 	directory="$argv"
-	echo -e "${MAGENTA}Creating new scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
+	echo -e "${MAGENTA}Creating new scan file destination: \n${GREEN}'/home/workstation5/workplace/data/${MAGENTA}$directory'${NC}"
 	mkdir $directory
 	cd $directory
 
 elif [ -d "$argv" ]; then
 	directory="$argv"
-	echo -e "${MAGENTA}Overwriting scan file destination: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/3DScanner/scans/${MAGENTA}$directory'${NC}"
+	echo -e "${MAGENTA}Overwriting scan file destination: \n${GREEN}'/home/workstation5/workplace/data/${MAGENTA}$directory'${NC}"
 	if [ -d "$directory" ]; then
 		rm -rf $directory
 	fi
@@ -67,7 +67,7 @@ killall XnSensorServer
 
 # Begin scan
 echo -e -n "\n${BLUE}Start camera feed:${NC}"
-/home/workstation5/Tom/cameraarm/src/Kinect_code/build/KinectScan &
+/home/workstation5/workplace/source/kinect_arm_chrisquion/src/Kinect_code/build/KinectScan &
 scanPID=$!
 
 # wait for command from stdin to stop scanning.
@@ -95,4 +95,4 @@ else
 fi
 
 echo -e "${BLUE}Finished scanning images.${NC}"
-echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/source/cameraarm/${MAGENTA}$directory'${NC}"
+echo -e "${MAGENTA}\nScans saved to: \n${GREEN}'/home/workstation5/workplace/data/${MAGENTA}$directory'${NC}"
