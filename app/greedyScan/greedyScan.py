@@ -98,12 +98,11 @@ def main():
 	print UNDERLINE_GREEN+"                                                                        "+NC
 	print UNDERLINE_GREEN+"                     Welcome to Karl's greedy scan!                     "+NC
 	print BLUE+"Before we begin, complete these steps:"+NC
-	print "    1. Plug RPi and Kinect camera into power. Wait 20 seconds."
+	print "    1. Plug RPi and Kinect camera into power. Wait ~20 seconds."
 	print "    2. Plug RPi into this computer via ethernet cable."
 	print "    3. Plug Kinect into this computer via USB cable."
 	print "    4. Manually move camera arm to \"Start\" position on table."
-	print "    5. Switch motor power block on."
-	print "    6. ssh into RPi and execute \'./runServer.sh\'"
+	print "    5. ssh into RPi and execute \'./runServer.sh\'"
 	print BLUE+"Once you have completed these steps, press "+GREEN+"\"Enter\""+BLUE+" or exit with "+GREEN+"\"Ctrl+C\""+NC
 	print UNDERLINE_GREEN+"                                                                        "+NC
 	

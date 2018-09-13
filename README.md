@@ -1,30 +1,26 @@
 # How to properly use the system:
+
 ## How to turn the system on:
 1. Power on the Ubuntu 14.04 machine and log in. 
 2. Plug in the Raspberry Pi (RPi). Also, make sure that it is connected to the Ubuntu machine via ethernet cable. In the Wifi menu at the top right of the Ubuntu machine, make sure that 'RPi' is selected.
 3. Plug in the XBox Kinect. A green LED on the Kinect should light up. If this light  does not appear, trace the wire and check its connection. Also, make sure that it is connected to the Ubuntu machine via USB.
-
-Note: _Do **not**_ yet power on the power strip that supplies the linear actuators and stepper motor.
-
 4. Open up **2** terminal windows on the Ubuntu machine.
-5. In the first terminal, navigate to `/cameraarm/app/`.
+5. In the first terminal, navigate to `~/kinect_arm/app/`.
 6. Run `./sshRPi.sh` to ssh into the RPi. You will have to type the password (trumpet1).
 7. On the RPi, run `./runServer.sh` and leave it alone.
-8. In the second terminal window, navigate to `/cameraarm/app/`. This is where you will run your application (ex greedyScan.py).
-9. Finally, power on the power strip that supplies the linear actuators and stepper motor.
+8. In the second terminal window, navigate to `~/kinect_arm/app/`. This is where you will run your application (ex greedyScan.py).
+
 ## How to turn the system off:
-1. Turn off the power strip that supplies the linear actuators and the stepper motor.
-2. On the Ubuntu machine, in the terminal window that is logged into the RPi via ssh
+1. On the Ubuntu machine, in the terminal window that is logged into the RPi via ssh
 	1. Kill the motorSever by hitting Ctrl+c.
 	2. Run `./shutdown.sh`.
 	3. Run `exit` to close the ssh connection.
 	4. Close the terminal window on the Ubuntu machine.
 	5. Wait 10 seconds, double check that you have completed Step 1, then unplug the RPi.
-3. Unplug the XBox Kinect.
+2. Unplug the XBox Kinect.
+
 ## Important Tips:
-**1. Do not turn on/off linear actuator power strip without having RPi plugged in.** 
-* The RPi powers the Arduino Uno via its USB connection. The Arduino's setup() method (which is called when the Arduino is first powered on) tells the linear actuators what their default positions should be. If the linear actuators do not have this constant signal from the Arduino Uno, the actuators default to 90 degrees.
-* Likewise, if you turn off the RPi (which will also turn off the Arduino Uno) before shutting off the power to the actuators, the actuators will default to 90 degrees because they will not have the signal from the Arduino. 
+**1. The power block for the linear actuators and stepper motor is connected to a relay switch. When `motorServer.py` accepts a connection from the Ubuntu machine, GPIO 12 (pin 32) is set to HIGH. This pin is connected to the power relay and signals the power relay to turn the "normally OFF" plugs to ON.
 
 **2. Follow proper steps for powering off the RPi.**
 * If you do not do this, the RPi may be stuck in recovery mode. If this happens, you will need to plug a keyboard, monitor, and mouse into the RPi to diagnose the issue and escape recovery mode. 
@@ -32,7 +28,7 @@ Note: _Do **not**_ yet power on the power strip that supplies the linear actuato
 -----
 # How to run greedyscan
 1. Turn the system on. **_Make sure to follow the steps above._**
-2. Navigate to `/cameraarm/app/greedyScan/`.
+2. Navigate to `~/kinect_arm/app/greedyScan/`.
 3. Run `./greedyScan.py`.
 	* Every time you run greedyScan, a new folder will be created inside of `/cameraarm/collected_data/new_folder` and all scanned image files are stored inside this new folder.
 		* By default, `new_folder` will be named `output`.
@@ -116,3 +112,7 @@ _____
 also include diagram
 ### Dual Motor Controller Jumpers
 (image of the jumpers)
+### Power relay switch (IOTRELAY.COM)
++ connects to GPIO pin 12 (pin 32 on the Raspberry Pi)
+- connects to ground
+The linear actuator and stepper motor power block connects to one of the "Normally OFF" plugs on the power relay switch. 

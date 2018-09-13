@@ -19,6 +19,7 @@ import socket
 import time
 import serial
 import serial.tools.list_ports
+import RPi.GPIO as GPIO
 
 sys.path.append('/home/karlpi3/RPi_code/stepperMotor')
 from stepperMotor import *
@@ -36,6 +37,12 @@ PORT = 8188
 
 class rpiserver:
 	def __init__(self, ipaddr, port):
+
+		# Set up GPIO pin for control wire to power block relay
+		self.power_toggle_pin = 12 # GPIO 12 (RPi pin 32) --White wire
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(self.power_toggle_pin, GPIO.OUT)
+		GPIO.output(self.power_toggle_pin, 0)
 
 		# Current value of each motor
 		self.ServoGearbox_Value = -1   # initial value
@@ -219,6 +226,11 @@ class rpiserver:
 		time.sleep(0.5) # min communication time 
 		self.send_response("Finished moving motor")
 
+	def toggleMotorPower(self, toggle):
+		if toggle:
+			GPIO.output(self.power_toggle_pin, 1) # turn on power block
+		else:
+			GPIO.output(self.power_toggle_pin, 0) # turn off power block
 
 if __name__ == "__main__":
 	
@@ -255,11 +267,13 @@ if __name__ == "__main__":
 	# loop accepting new connections
 	while True:
 		sv.accept_connection()
+		sv.toggleMotorPower(1)
 		# loop until the readline returns empty line (not even a newline char)
 		while True:
 			cmd = sv.get_command()
 
 			if len(cmd) <= 0: # client must have closed connection
+				sv.toggleMotorPower(0)
 				print "Closing client socket"
 				# graceful shutdown of client socket
 				try:
