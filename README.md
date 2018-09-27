@@ -105,7 +105,7 @@ _____
 ### Nema23 Stepper Motor + Stepper Motor Driver (M542T)
 ![Nema23_M542T](/resources/Nema23_M542T.jpg)
 ### Arduino Uno + Dual Motor Controller
-![Arduino_DualMotorController.jpg](/resources/Arduino_DualMotorController.jpg.jpg)
+![Arduino_DualMotorController.jpg](/resources/Arduino_DualMotorController.jpg)
 # Hardware settings
 ### Stepper Motor Driver (M542T)
 (image of the switches)
